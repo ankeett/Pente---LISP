@@ -48,11 +48,55 @@
 
 
 (defun set-board-value (board row col new-value)
-  (if (and (<= 0 row 18) (<= 0 col 18)) ; Check if the indices are within bounds
-      (let ((board (update-board board row col new-value))) ; Create a new board with the updated value
-       board) ; Return the new board
-      (format t "Indices out of bounds.~%"))
-)      
+  (cond
+    ((and (<= 0 row 18) (<= 0 col 18))
+      (let ((board (update-board board row col new-value)))
+        board)
+    )
+    (
+      t 
+      (format t "Indices out of bounds.~%")
+    )
+  )
+)
+
+  (defun place-stone(board row col symbol)
+    (cond
+      ((and (<= 0 row 18) (<= 0 col 18))
+      (cond
+        ((equal (get-board-value board row col) 0)
+      
+          (let ((board (update-board board row col symbol)))
+          board)
+        
+        )
+        (
+          t
+          (princ "Invalid move.")
+          (terpri)
+          (princ "Please try again.")
+          ()
+          
+        )
+      )
+      )
+      (
+        t 
+        (format t "Indices out of bounds.~%")
+      )
+      
+    
+    )
+  )
+    
+
+
+
+  ;; (if (and (<= 0 row 18) (<= 0 col 18)) ; Check if the indices are within bounds
+  ;;     (let ((board (update-board board row col new-value))) ; Create a new board with the updated value
+  ;;      board) ; Return the new board
+  ;;     (format t "Indices out of bounds.~%"))
+      
       
 (defun update-board (board row col new-value)
     (cond
@@ -104,7 +148,7 @@
 
     (cond
       ((>= vertical-up-sum 6)
-       
+
        t)
       ((>= horizontal-sum 6)
        
@@ -115,14 +159,16 @@
       ((>= diagonal-right-up-sum 6)
        
        t)
-      (t nil))))
+      (t 
+      nil
+      ))))
 
 
 (defun check-direction (board row col symbol delta-row delta-col count)
   (labels ((check-direction-rec (r c consecutive-stones)
              (cond
                ((>= consecutive-stones count) consecutive-stones)
-               ((or (< r 0) (>= r 18) (< c 0) (>= c 18) (/= (get-board-value board r c) symbol))
+               ((or (< r 0) (>= r 18) (< c 0) (>= c 18) (not(equal (get-board-value board r c) symbol)))
                 consecutive-stones)
                (t (check-direction-rec (+ r delta-row) (+ c delta-col) (+ consecutive-stones 1))))))
     (check-direction-rec row  col 0)))
@@ -132,11 +178,11 @@
 (defun check-capture(board row col symbol)
   (let* ((opponent-symbol (cond 
       
-        ((= symbol 1)
-          2
+        ((equal symbol (first '(W)))
+          (first '(B))
         )
         (t
-            1
+            (first '(W))
         )
       )
       
@@ -147,16 +193,27 @@
          (capture-pair board row col 1 0 symbol opponent-symbol 2)
          (capture-pair board row col -1 0 symbol opponent-symbol 2)
          (capture-pair board row col 1 1 symbol opponent-symbol 2)
-        (capture-pair board row col -1 -1 symbol opponent-symbol 2)
+          (capture-pair board row col -1 -1 symbol opponent-symbol 2)
          (capture-pair board row col -1 1 symbol opponent-symbol 2)
          (capture-pair board row col 1 -1 symbol opponent-symbol 2))
+
+
     t)
     (t nil)))
 
 )
 
 (defun capture-pair (board x y dx dy oColor eColor count)
-    (check-capture-direction board (+ x dx) (+ y dy) dx dy oColor eColor count)
+  (cond
+    ((check-capture-direction board (+ x dx) (+ y dy) dx dy oColor eColor count)
+      (princ (remove-captured board (+ x dx) (+ y dy) dx dy 2))
+      
+    )
+  (t
+    nil)
+  )
+
+
 )
 
 
@@ -175,35 +232,52 @@
   )
 )
 
+(defun remove-captured(board x y dx dy count)
+  (cond
+    ((equal count 0)
+      board
+    )
+    (t
+      (let* ((new-board (set-board-value board x y 0))
+        (x-next (+ x dx))
+        (y-next (+ y dy)))
+        (remove-captured new-board x-next y-next dx dy (- count 1)))
+
+    )
+  )
+)
+
 (let* ((my-2d-board
-      '((1 1 1 1 1 1 0 0 0 0 0 1 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 2 0 2 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 1 1 1 1 2 2 2 1 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0)
+      '((B B B B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 B B B B B 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 B 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 B 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))))
   (print-2d-board my-2d-board)
-  ;; (print (get-board-value my-2d-board 0 0))
-  (cond ((check-five my-2d-board 3 9 1)
-         (format t "Five in a row.~%"))
-        (t (format t "No five in a row.~%")))
-  (cond ((check-capture my-2d-board 3 8 1)
-         (format t "Captured.~%"))
-        (t (format t "Not captured.~%")))
+  (print (get-board-value my-2d-board 2 0))
+  ;; (cond ((check-five my-2d-board 16 0 (first '(B)))
+  ;;        (format t "Five in a row.~%"))
+  ;;       (t (format t "No five in a row.~%")))
+  ;; (cond ((check-capture my-2d-board 4 8 (first '(W)))
+  ;;        (format t "Captured.~%")
+         
+  ;;        )
+  ;;       (t (format t "Not captured.~%")))
     
   ;; (print (check-for-capture my-2d-board 4 8 1 0 1 2 2))
-             
+  (print (place-stone my-2d-board 1 1 (first '(A))))
   )
