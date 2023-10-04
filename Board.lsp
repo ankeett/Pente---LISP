@@ -1,3 +1,5 @@
+(load "HumanPlayer.lsp")
+
 (defun make-2d-board (rows cols)
   (labels ((make-row (cols)
              (cond
@@ -60,42 +62,35 @@
   )
 )
 
-  (defun place-stone(board row col symbol)
+(defun place-stone(board row col symbol)
+  (cond
+    ((and (<= 0 row 18) (<= 0 col 18))
     (cond
-      ((and (<= 0 row 18) (<= 0 col 18))
-      (cond
-        ((equal (get-board-value board row col) 0)
+      ((equal (get-board-value board row col) 0)
+    
+        (let ((board (update-board board row col symbol)))
+        board)
       
-          (let ((board (update-board board row col symbol)))
-          board)
-        
-        )
-        (
-          t
-          (princ "Invalid move.")
-          (terpri)
-          (princ "Please try again.")
-          ()
-          
-        )
-      )
       )
       (
-        t 
-        (format t "Indices out of bounds.~%")
+        t
+        (princ "Invalid move.")
+        (terpri)
+        (princ "Please try again.")
+        ()
+        (getUserMove)
+        
       )
-      
-    
     )
-  )
+    )
+    (
+      t 
+      (format t "Indices out of bounds.~%")
+    )
     
-
-
-
-  ;; (if (and (<= 0 row 18) (<= 0 col 18)) ; Check if the indices are within bounds
-  ;;     (let ((board (update-board board row col new-value))) ; Create a new board with the updated value
-  ;;      board) ; Return the new board
-  ;;     (format t "Indices out of bounds.~%"))
+  
+  )
+)
       
       
 (defun update-board (board row col new-value)
@@ -175,45 +170,88 @@
 
 ;;capture function
 ;;capture function
+;; (defun check-capture(board row col symbol)
+;;   (let* ((opponent-symbol (cond 
+      
+;;         ((equal symbol (first '(W)))
+;;           (first '(B))
+;;         )
+;;         (t
+;;             (first '(W))
+;;         )
+;;       )
+      
+;;     ))
+    
+;;       (cond
+;;         ((or (capture-pair board row col 0 1 symbol opponent-symbol 2)
+;;             (capture-pair board row col 0 -1 symbol opponent-symbol 2)
+;;             (capture-pair board row col 1 0 symbol opponent-symbol 2)
+;;             (capture-pair board row col -1 0 symbol opponent-symbol 2)
+;;             (capture-pair board row col 1 1 symbol opponent-symbol 2)
+;;             (capture-pair board row col -1 -1 symbol opponent-symbol 2)
+;;             (capture-pair board row col -1 1 symbol opponent-symbol 2)
+;;             (capture-pair board row col 1 -1 symbol opponent-symbol 2))
+        
+;;         t)
+;;         (t nil))
+
+      
+;;   )
+;; )
+
 (defun check-capture(board row col symbol)
   (let* ((opponent-symbol (cond 
       
         ((equal symbol (first '(W)))
           (first '(B))
         )
-        (t
-            (first '(W))
-        )
-      )
+         (t
+             (first '(W))
+         )
+       )
       
-    ))
-  (cond
-    ( (or (capture-pair board row col 0 1 symbol opponent-symbol 2)
-         (capture-pair board row col 0 -1 symbol opponent-symbol 2)
-         (capture-pair board row col 1 0 symbol opponent-symbol 2)
-         (capture-pair board row col -1 0 symbol opponent-symbol 2)
-         (capture-pair board row col 1 1 symbol opponent-symbol 2)
-          (capture-pair board row col -1 -1 symbol opponent-symbol 2)
-         (capture-pair board row col -1 1 symbol opponent-symbol 2)
-         (capture-pair board row col 1 -1 symbol opponent-symbol 2))
+     ))
+        (cond
+            ((let ((capture-board (capture-pair board row col 0 1 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col 0 -1 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col 1 0 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col -1 0 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col 1 1 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col -1 -1 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col -1 1 symbol opponent-symbol 2)))
+              capture-board)
+            )
+            ((let ((capture-board (capture-pair board row col 1 -1 symbol opponent-symbol 2)))
+              capture-board)
+            )
 
-
-    t)
-    (t nil)))
-
+            (t
+              nil)) 
+  )
 )
+
 
 (defun capture-pair (board x y dx dy oColor eColor count)
   (cond
     ((check-capture-direction board (+ x dx) (+ y dy) dx dy oColor eColor count)
-      (princ (remove-captured board (+ x dx) (+ y dy) dx dy 2))
-      
+      (remove-captured board (+ x dx) (+ y dy) dx dy 2)   
     )
   (t
     nil)
   )
-
-
 )
 
 
@@ -235,8 +273,7 @@
 (defun remove-captured(board x y dx dy count)
   (cond
     ((equal count 0)
-      board
-    )
+      board)
     (t
       (let* ((new-board (set-board-value board x y 0))
         (x-next (+ x dx))
@@ -251,11 +288,11 @@
       '((B B B B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (B 0 0 0 B B B B B 0 0 0 0 0 0 0 0 0 0)
         (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 B 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 B 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
+        (B W 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 B 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
+        (0 B 0 0 0 0 0 0 B B 0 0 0 0 0 0 0 0 0)
+        (0 W 0 0 0 0 0 0 B 0 B 0 0 0 0 0 0 0 0)
+        (0 W 0 0 0 0 0 0 W 0 0 W 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
@@ -269,15 +306,14 @@
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))))
   (print-2d-board my-2d-board)
   (print (get-board-value my-2d-board 2 0))
-  ;; (cond ((check-five my-2d-board 16 0 (first '(B)))
-  ;;        (format t "Five in a row.~%"))
-  ;;       (t (format t "No five in a row.~%")))
-  ;; (cond ((check-capture my-2d-board 4 8 (first '(W)))
-  ;;        (format t "Captured.~%")
-         
-  ;;        )
-  ;;       (t (format t "Not captured.~%")))
-    
-  ;; (print (check-for-capture my-2d-board 4 8 1 0 1 2 2))
-  (print (place-stone my-2d-board 1 1 (first '(A))))
+  (cond ((check-five my-2d-board 16 0 (first '(B)))
+         (format t "Five in a row.~%"))
+        (t (format t "No five in a row.~%")))
+  
+  (cond ((print (check-capture my-2d-board 3 1 (first '(W))))
+         (format t "Captured~%"))
+        (t (format t "Not captured.~%")))
+
+
+
   )

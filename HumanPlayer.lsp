@@ -1,8 +1,3 @@
-(defun makeMove ()
-
-)
-
-
 (defun convertMove (move)
   (let* ((colChar (char-upcase (char move 0)))
          (row (- 19 (parse-integer (subseq move 1))))
