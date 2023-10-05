@@ -57,7 +57,7 @@
     )
     (
       t 
-      (format t "Indices out of bounds.~%")
+      (format t "Indices out of bounds.(from set-board-value)~%")
     )
   )
 )
@@ -85,7 +85,7 @@
     )
     (
       t 
-      (format t "Indices out of bounds.~%")
+      (format t "Indices out of bounds.(from place stone)~%")
     )
     
   
@@ -109,7 +109,7 @@
     (if (and (<= 0 row 18) (<= 0 col 18)) ; Check if the indices are within bounds
         (let ((value (get-row-value board row col))) ; Get the value at the specified row and column
             value) ; Return the value
-        (format t "Indices out of bounds.~%")))
+        (format t "Indices out of bounds.(from get-board-value)~%")))
 
 (defun get-row-value (board row col)
     (cond
@@ -243,7 +243,6 @@
   )
 )
 
-
 (defun capture-pair (board x y dx dy oColor eColor count)
   (cond
     ((check-capture-direction board (+ x dx) (+ y dy) dx dy oColor eColor count)
@@ -254,10 +253,12 @@
   )
 )
 
-
 (defun check-capture-direction (board x y dx dy oColor eColor count)
 
   (cond 
+      ((not(and (<= 0 x 18) (<= 0 y 18)))
+        ()
+      )
     ((and (equal count 0) (equal (get-board-value board x y) oColor))
       t
     )
@@ -305,7 +306,7 @@
         (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))))
   (print-2d-board my-2d-board)
-  (print (get-board-value my-2d-board 2 0))
+  ;;(print (get-board-value my-2d-board 2 0))
   (cond ((check-five my-2d-board 16 0 (first '(B)))
          (format t "Five in a row.~%"))
         (t (format t "No five in a row.~%")))
@@ -313,7 +314,4 @@
   (cond ((print (check-capture my-2d-board 3 1 (first '(W))))
          (format t "Captured~%"))
         (t (format t "Not captured.~%")))
-
-
-
-  )
+)
