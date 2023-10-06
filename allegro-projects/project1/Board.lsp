@@ -203,11 +203,11 @@
 (defun check-capture(board row col symbol)
   (let* ((opponent-symbol (cond 
       
-        ((string= symbol "W")
-          "B"
+        ((equal symbol (first '(W)))
+          (first '(B))
         )
          (t
-             "W"
+             (first '(W))
          )
        )
       
@@ -285,40 +285,33 @@
   )
 )
 
-;; (let* ((my-2d-board
-;;       '(("B" "B" "B" "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 "B" "B" "B" "B" "B" 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 "W" 0 0 0 0 0 0 "W" 0 0 0 0 0 0 0 0 0 0)
-;;         (0 "W" 0 0 0 0 0 0 "B" "B" 0 0 0 0 0 0 0 0 0)
-;;         (0 "B" 0 0 0 0 0 0 "B" 0 "B" 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 "W" 0 0 "W" 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-;;         ))
-;;   (print-2d-board my-2d-board)
-;;   ;;(print (get-board-value my-2d-board 2 0))
-;;   (cond ((check-five my-2d-board 16 0 "B")
-;;          (format t "Five in a row.~%"))
-;;         (t (format t "No five in a row.~%")))
-
-;;         (cond
-;;             ((let* ((captured-board (check-capture my-2d-board 3 1 "B"))
-;;                   )
-;;               (cond
-;;                 (captured-board
-;;                 (print-2d-board captured-board))
-;;                 (t
-;;                 (print-2d-board my-2d-board))))
-;;             ))
-;; )
+(let* ((my-2d-board
+      '((B B B B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 B B B B B 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B W 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 B 0 0 0 0 0 0 W 0 0 0 0 0 0 0 0 0 0)
+        (0 B 0 0 0 0 0 0 B B 0 0 0 0 0 0 0 0 0)
+        (0 W 0 0 0 0 0 0 B 0 B 0 0 0 0 0 0 0 0)
+        (0 W 0 0 0 0 0 0 W 0 0 W 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (B 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))))
+  (print-2d-board my-2d-board)
+  ;;(print (get-board-value my-2d-board 2 0))
+  (cond ((check-five my-2d-board 16 0 (first '(B)))
+         (format t "Five in a row.~%"))
+        (t (format t "No five in a row.~%")))
+  
+  (cond ((print (check-capture my-2d-board 3 1 (first '(W))))
+         (format t "Captured~%"))
+        (t (format t "Not captured.~%")))
+)

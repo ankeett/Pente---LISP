@@ -73,14 +73,12 @@
                 ;send 5 for 5 in a row to add to score
                 ;;(calculate-score playerCaptures opponentCaptures "Human"))
                 (t
-                    (format t "Row: ~d~%" row)
-                    (format t "Col: ~d~%" col)
-
+                  (print "for capture")
                     (cond
                         ((let* ((captured-board (check-capture new-board row col playerColor))
                               (next-playerCaptures (+ 1 playerCaptures)
                               ))
-                              
+                              (print captured-board)
                           (cond
                             (captured-board
                               (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
@@ -97,25 +95,44 @@
   )
 ))
 
-;;;recursively check capture here
-;; (defun recursively-check-capture (board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;   (let* ((captured-board (check-capture board row col playerColor))
-;;          (next-playerCaptures (+ 1 playerCaptures)))
-;;     (print captured-board)
-;;     (if captured-board
-;;         (recursively-check-capture captured-board row col playerColor next-playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;         (play-game board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
-
-;; (recursively-check-capture new-board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-
-
 
 (defun captures(playerType playerCapture opponentType opponentCapture)
-  (format t "--------------------------------~%")
-  (format t "~a Captures: ~a~%" playerType playerCapture)
-  (format t "~a Captures: ~a~%" opponentType opponentCapture)
-  (format t "--------------------------------~%"))
+  (princ playerType)
+  (princ " Captures: ") 
+  (princ playerCapture)
+  (terpri)
+  (princ opponentType)
+  (princ " Captures: ")
+  (princ opponentCapture)
+  (terpri)
+  (princ "--------------------------------")
+  (terpri)
 
+)
+
+;; (defun calculate-score (playerCapture opponentCapture winnerType)
+;;   (format t "Round Scores:~%")
+;;   ;store the score and send the winner and looser
+;;   (cond
+;;     ( (equal winnerType "Human")
+;;         (princ "Human Scores: ")
+;;         (princ (+ 5 playerCapture))
+;;         (terpri)
+;;         (princ "Computer Scores: ")
+;;         (princ opponentCapture)
+;;         (terpri)
+;;     )
+;;     (t
+;;       (princ "Human Scores: ")
+;;         (princ  opponentCapture)
+;;         (terpri)
+;;         (princ "Computer Scores: ")
+;;         (princ (+ 5 playerCapture))
+;;         (terpri)
+;;     )
+;;   )
+;;   ;(ask-for-next-game winnerType)
+;; )
 
 ;;(list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
 (defun calculate-score (result)
@@ -276,7 +293,10 @@
          (t
           (format t "Tournament ended.~%")))))
   )
-  )
 )
+
+
+)
+
 
 (tournament 0 0)
