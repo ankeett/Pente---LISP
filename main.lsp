@@ -3,7 +3,6 @@
 (load "HumanPlayer.lsp")
 (load "ComputerPlayer.lsp")
 
-(welcome)
 
 (defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
   (print-2d-board board)
@@ -279,4 +278,50 @@
   )
 )
 
-(tournament 0 0)
+;;(tournament 0 0)
+
+;;load game state
+;;call play-game
+;; call round score and call tournament with the updated score
+(let* ((response (welcome)))
+  (cond
+    ((not(equal response 1))
+      ;;(load-game)
+        ;;returns
+      ;;(list board playerColor playerType opponentColor opponentType playerCapture opponentCapture playerScore opponentScore)
+      ;;play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
+      ;;returns
+      ;;(list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 5))
+
+    ;;   (scores (calculate-score result)))
+    ;;  (format t "-----Tournament Scores-----~%")
+    ;;  (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
+    ;;  (format t "Computer Scores: ~a~%" (+ (second scores) computerScore))
+    ;;  (format t "Continue the tournament? (yes/no): ~%")
+    ;;  (let ((response (read-line)))
+    ;;    (cond
+    ;;      ((string= response "yes")
+    ;;       (tournament (+ (first scores) humanScore) (+ (second scores) computerScore)))
+    ;;      (t
+    ;;       (format t "Tournament ended.~%")))))
+      (let ((game-state (load-game)))
+          (format t "Loaded game state: ~A~%" game-state)
+          (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state))))
+            (format t "Game result: ~A~%" result)
+            (let* ((scores (calculate-score result)))
+              (format t "-----Tournament Scores-----~%")
+              (format t "Human Scores: ~a~%" (+ (first scores) (eighth game-state)))
+              (format t "Computer Scores: ~a~%" (+ (second scores) (ninth game-state)))
+              (format t "Continue the tournament? (yes/no): ~%")
+              (let ((response (read-line)))
+                (cond
+                  ((string= response "yes")
+                   (tournament (+ (first scores) (eighth game-state)) (+ (second scores) (ninth game-state))))
+                  (t
+                   (format t "Tournament ended.~%")))))
+          ))
+    )
+    (t
+      (tournament 0 0))))
+
+

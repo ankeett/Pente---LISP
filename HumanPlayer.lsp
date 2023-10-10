@@ -46,9 +46,9 @@
          (data
           (cond
             ((string= playerType "Human")
-             (list board playerType color-string playerCaptures opponentCaptures 0 0))
+             (list board playerCaptures 0 opponentCaptures 0 playerType color-string ))
             (t
-             (list board playerType color-string opponentCaptures playerCaptures 0 0))))
+             (list board opponentCaptures 0 playerCaptures  0 playerType color-string ))))
          )
 
     (with-open-file (stream filename
