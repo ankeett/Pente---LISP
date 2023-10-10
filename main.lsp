@@ -60,7 +60,7 @@
         t 
         (equal playerType "Human")
         ;get user move
-        (let* ((user-move (getUserMove))
+        (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures))
               (row (first user-move))
               (col (second user-move)))
           (let* ((new-board (place-stone board row col playerColor)))

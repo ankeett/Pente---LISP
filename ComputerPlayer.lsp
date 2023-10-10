@@ -112,82 +112,97 @@
 )
 
 
+(defun search-empty-cell (board center-row center-col dr dc)
+  (cond ((or (< dr (- center-row 4)) (> dr (+ center-row 4))
+             (< dc (- center-col 4)) (> dc (+ center-col 4)))
+         nil) ; Out of bounds, return nil
+        ((and (>= dr 0) (< dr 19) (>= dc 0) (< dc 19) (empty-cell-p board dr dc))
+         (list dr dc)
+         ) ; If the cell is empty and within bounds, return its coordinates as a list
+        (t
+         (search-empty-cell board center-row center-col (+ dr 1) dc)
+        )
+  )) ; Recursively search the next position
+
+(defun find-empty-cell (board center-row center-col player-symbol radius)
+  (cond ((= radius 5)
+         (list -1 -1)
+        ) ; If radius exceeds 4, no move is available
+        (t
+         (let* ((result (search-empty-cell board center-row center-col (- radius) (- radius)))
+                (next-radius (+ radius 1)))
+           (cond ((result)
+                  result)
+                 (t
+                  (find-empty-cell board center-row center-col player-symbol next-radius)
+                  )
+            ))
+        ))
+)
+
+(defun control-center (board player-symbol)
+  (let* ((center-row 9)
+         (center-col 9))
+    (cond ((empty-cell-p board center-row center-col)
+           (list center-row center-col)) ; Return center as a list if it's empty
+          (t
+           (find-empty-cell board center-row center-col player-symbol 1)))))
+;; pair<int, int> Strategy::controlCenter(Board B, int playerSymbol) {
+;; 	// Define the coordinates of the center of the board
+;; 	int centerRow = 9;
+;; 	int centerCol = 9;
+
+;; 	// Check if the center is empty and return it if so
+;; 	if (B.isEmptyCell(centerRow, centerCol)) {
+;; 		return make_pair(centerRow, centerCol);
+;; 	}
+
+;; 	// If the center is not empty, search for the nearest empty cell around the center
+;; 	for (int radius = 1; radius < 5; radius++) {
+;; 		for (int dr = -radius; dr <= radius; dr++) {
+;; 			for (int dc = -radius; dc <= radius; dc++) {
+;; 				int newRow = centerRow + dr;
+;; 				int newCol = centerCol + dc;
+
+;; 				// Check if the new position is within bounds and empty
+;; 				if (newRow >= 0 && newRow < 19 && newCol >= 0 && newCol < 19 &&
+;; 					B.isEmptyCell(newRow, newCol)) {
+;; 					return make_pair(newRow, newCol);
+;; 				}
+;; 			}
+;; 		}
+;; 	}
+
+;; 	// If no suitable position is found, return {-1, -1} to indicate no move is available
+;; 	return make_pair(-1, -1);
+;; }
 
 
 (let* ((my-2d-board
-      '((0 0 0 0 0 0 0 "W" "W" "B" "B" 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        ("B" 0 "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        ("B" "B" 0 "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        ( 0 "W" 0 0 "B" 0 0  0 "W" 0 0 0 0 0 0 0 0 0 0)
-        (0 "W" 0 0 0 0 0 0 "B" "B" 0 0 0 0 0 0 0 0 0)
-        (0 "B" 0 0 0 0 0 0 "B" 0 "B" 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 "W" 0 0 "W" 0 0 0 0 0 0 0)
-        (0 0 "W" "W" "W" 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      '((0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 "W" 0 0 0 0 0 0 0 0 0 0 0)
-        (0 0 0 0 0 0 0 0 "W" 0 0 0 0 0 0 0 0 0 0)
-        ("B" 0 0 0 0 0 0 0 0  "W" 0  0 0 0 0 0 0 0 0)
-        ("B" 0 0 0 0 0 0 0 0 0 "W" 0 0 0 0 0 0 0 0)
-        ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-        ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 "W" "W" "B" "B" 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+        (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
         ))
   (print-2d-board my-2d-board)
   ;;(print (get-board-value my-2d-board 2 0))
-  (print (defend-capture-position my-2d-board "W"))
+  (print (defend-capture-position my-2d-board "B"))
 
 
   (print (empty-cell-p my-2d-board 4 0))
 )
-
-
-;; pair<int, int> Strategy::findWinningMove(Board B, int playerSymbol) {
-;;     // Iterate through the entire game board
-;;     for (int row = 1; row <= 19; row++) {
-;;         for (int col = 0; col < 19; col++) {
-;;             // Check if the current cell is empty
-;;             if (B.isEmptyCell(row,col)) {
-;;                 // Simulate placing the player's stone in the current empty cell
-;;                 B.setBoard(row, col, playerSymbol);
-
-;;                 // Check for five-in-a-row with the simulated stone
-;;                 if (B.checkFive(row,col,playerSymbol)) {
-;;                     // If winning move is found, return the position
-;;                     B.setBoard(row, col, 0); 
-;;                     return make_pair(row, col);
-;;                 }
-
-;;                 // Undo the simulation by resetting the cell to empty
-;;                 B.setBoard(row, col, 0);
-;;             }
-;;             else {
-;; 				continue;
-;;             }
-;;         }
-;;     }
-
-;;     // No immediate winning move found
-;;     return make_pair(-1, -1);
-;; }
-
-;; (defun find-winning-move (board player-symbol)
-
-;;   (cond
-;;     ((equal (get-board-value board row col) 0)
-;;       ()
-;;     )
-;;     (t
-
-    
-;;     )
-;;   )
-
-;; )
-
-;; (defun check-cell (board row col playerSymbol)
-
-
-;;)

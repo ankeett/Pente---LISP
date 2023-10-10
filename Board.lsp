@@ -163,7 +163,7 @@
   (labels ((check-direction-rec (r c consecutive-stones)
              (cond
                ((>= consecutive-stones count) consecutive-stones)
-               ((or (< r 0) (>= r 18) (< c 0) (>= c 18) (not(equal (get-board-value board r c) symbol)))
+               ((or (< r 0) (>= r 19) (< c 0) (>= c 18) (not(equal (get-board-value board r c) symbol)))
                 consecutive-stones)
                (t (check-direction-rec (+ r delta-row) (+ c delta-col) (+ consecutive-stones 1))))))
     (check-direction-rec row  col 0)))
