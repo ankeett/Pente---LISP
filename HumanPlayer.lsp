@@ -41,11 +41,11 @@
   (let* ((filename (read-line))
          (color-string
           (cond
-            ((equal playerColor "B") "Black")
-            (t "White")))
+            ((equal playerColor 'B) 'Black)
+            (t 'White)))
          (data
           (cond
-            ((string= playerType "Human")
+            ((string= playerType 'Human)
              (list board playerCaptures 0 opponentCaptures 0 playerType color-string ))
             (t
              (list board opponentCaptures 0 playerCaptures  0 playerType color-string ))))

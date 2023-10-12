@@ -2,6 +2,7 @@
 (load "Board.lsp")
 (load "HumanPlayer.lsp")
 (load "ComputerPlayer.lsp")
+(load "test.lsp")
 
 
 (defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
@@ -27,29 +28,32 @@
       (cond
         (
           ;if computer's turn
-          (equal playerType "Computer")
-          (let* ((computer-move (computerMove))
+          (string= playerType 'Computer)
+          (let* ((computer-move (computerMove board playerColor))
                  (row (first computer-move))
                  (col (second computer-move))
                  (new-board (place-stone board row col playerColor)))
-            (captures "Computer" playerCaptures "Human"  opponentCaptures)
+            (captures 'Computer playerCaptures 'Human  opponentCaptures)
             (format t "Computer move: ~a~%" (third computer-move))
               (cond
                 ((check-five new-board row col playerColor)
                 (format t "Five in a row.~%")
                 ;;return the board and everything
+                (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 5)
+
                 )
                 ;;(calculate-score playerCaptures opponentCaptures "Computer"))
                 (t
                     (cond
-                        ((let* ((captured-board (check-capture new-board row col playerColor))
-                              (next-playerCaptures (+ 1 playerCaptures)))
-                          (cond
-                            (captured-board
+                      ((let* ((captured-data (recursively-check-capture new-board row col playerColor playerCaptures))
+                              (captured-board (first captured-data))
+                              (next-playerCaptures (second captured-data)))
+                        (cond
+                          (captured-board
                             (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
-                            (t
-                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures playerCaptures))))
-                        ))
+                          (t
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
+                      ))
 
                     
                     ))
@@ -57,13 +61,13 @@
           ))
       (
         t 
-        (equal playerType "Human")
+        (string= playerType 'Human)
         ;get user move
         (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures))
               (row (first user-move))
               (col (second user-move)))
           (let* ((new-board (place-stone board row col playerColor)))
-              (captures "Human" playerCaptures "Computer"  opponentCaptures)
+              (captures 'Human playerCaptures 'Computer  opponentCaptures)
             (cond
                 ((check-five new-board row col playerColor)
                 (format t "Five in a row.~%")
@@ -75,17 +79,29 @@
                     (format t "Row: ~d~%" row)
                     (format t "Col: ~d~%" col)
 
-                    (cond
-                        ((let* ((captured-board (check-capture new-board row col playerColor))
-                              (next-playerCaptures (+ 1 playerCaptures)
-                              ))
+                    ;; (cond
+                    ;;     ((let* ((captured-board (check-capture new-board row col playerColor))
+                    ;;           (next-playerCaptures (+ 1 playerCaptures)
+                    ;;           ))
                               
-                          (cond
-                            (captured-board
-                              (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
-                            (t
-                              (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures playerCaptures))))
-                        ))
+                    ;;       (cond
+                    ;;         (captured-board
+                    ;;           (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
+                    ;;         (t
+                    ;;           (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures playerCaptures))))
+                    ;;     ))
+
+                    (cond
+                      ((let* ((captured-data (recursively-check-capture new-board row col playerColor playerCaptures))
+                              (captured-board (first captured-data))
+                              (next-playerCaptures (second captured-data)))
+                        (cond
+                          (captured-board
+                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
+                          (t
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
+                      ))
+
                     ))
           )
         )
@@ -95,18 +111,6 @@
 
   )
 ))
-
-;;;recursively check capture here
-;; (defun recursively-check-capture (board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;   (let* ((captured-board (check-capture board row col playerColor))
-;;          (next-playerCaptures (+ 1 playerCaptures)))
-;;     (print captured-board)
-;;     (if captured-board
-;;         (recursively-check-capture captured-board row col playerColor next-playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;         (play-game board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
-
-;; (recursively-check-capture new-board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-
 
 
 (defun captures(playerType playerCapture opponentType opponentCapture)
@@ -130,7 +134,7 @@
 
 
     (cond 
-      ((equal winnerType "Human")
+      ((equal winnerType 'Human)
         (format t "Human Scores: ~a~%" (+ winnerCapture isFiveinarow))
         (format t "Computer Scores: ~a~%" opponentCapture)
         (list (+ winnerCapture isFiveinarow) opponentCapture))
@@ -141,24 +145,7 @@
     ))
 
 
-(defun ask-for-next-game(winner loser)
-  (format t "Do you want to play one more round?(y/n) ~%")
-  (finish-output)
-  (let* ((user-input (read-line)))
-    (format t "You entered: ~a~%" user-input)
-    (cond 
-      ((equal user-input "y")
-       (start-game))
-      ((equal user-input "n")
-       (quit-game))
-      (t (format t "Invalid input.~%"))))
-)
 
-
-(defun quit-game()
-  (format t "Do you want to Serialize (y/n)")
-
-)
 
 ;; (defun start-round(firstPlayerType secondPlayerType )
 ;;   (let* ((my-2d-board (make-2d-board 19 19)))
@@ -166,7 +153,7 @@
 
 (defun start-round (firstPlayerType secondPlayerType)
   (let* ((my-2d-board (make-2d-board 19 19))
-         (game-result (play-game my-2d-board "W" firstPlayerType "B" secondPlayerType 0 0)))
+         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0)))
     (values game-result)))
 
 
@@ -229,7 +216,7 @@
 
  (cond
   ((> humanScore computerScore)
-   (let* ((result (start-round "Human" "Computer")))
+   (let* ((result (start-round 'Human 'Computer)))
      (let* ((scores (calculate-score result)))
        (format t "-----Tournament Scores-----~%")
        (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
@@ -245,7 +232,7 @@
   )
 
   ((< humanScore computerScore)
-   (let* ((result (start-round "Computer" "Human")))
+   (let* ((result (start-round 'Computer 'Human)))
      (let* ((scores (calculate-score result)))
        (format t "-----Tournament Scores-----~%")
        (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
@@ -285,7 +272,7 @@
 ;; call round score and call tournament with the updated score
 (let* ((response (welcome)))
   (cond
-    ((not(equal response 1))
+    ((not(equal response "1"))
       ;;(load-game)
         ;;returns
       ;;(list board playerColor playerType opponentColor opponentType playerCapture opponentCapture playerScore opponentScore)
@@ -307,7 +294,6 @@
       (let ((game-state (load-game)))
           (format t "Loaded game state: ~A~%" game-state)
           (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state))))
-            (format t "Game result: ~A~%" result)
             (let* ((scores (calculate-score result)))
               (format t "-----Tournament Scores-----~%")
               (format t "Human Scores: ~a~%" (+ (first scores) (eighth game-state)))

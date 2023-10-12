@@ -22,7 +22,7 @@
 ;;   )
 ;; )
 (defun get-welcome-input ()
-  (format t "Enter 1 to start a new game, 2 to load a game: ")
+  (format t "Enter 1 to start a new game, 2 to load a game: ~%")
   (let ((user-input (read-line)))
     (cond
       ((equal user-input "1")
@@ -32,6 +32,7 @@
       (t
        (format t "Invalid input.~%")
        (get-welcome-input)))))
+
 
 
 (defun toss-coin()
@@ -53,14 +54,14 @@
                 (terpri)
                 (princ "You will play: White")
                 (terpri)
-                (list "Human" "Computer"))
+                (list 'Human 'Computer))
                 
                 (t
                     (princ "Computer won the toss.")
                     (terpri)
                     (princ "You will play: Black")
                     (terpri)
-                    (list "Computer" "Human")
+                    (list 'Computer 'Human)
                 )    
             )
     
@@ -83,18 +84,18 @@
        (playerType (sixth values))
        (color-string (seventh values))
        (playerColor
-        (cond ((string= color-string "Black") "B")
+        (cond ((string= color-string 'Black) 'B)
               (t 
-                (string= color-string "White") "W"
+                (string= color-string 'White) 'W
               )))
        (opponentColor
-        (cond ((string= playerColor "B") "W")
+        (cond ((string= playerColor 'B) 'W)
               
-              (t (string= playerColor "W") "B")))
+              (t (string= playerColor 'W) 'B)))
         (opponentType
-        (cond ((string= playerType "Human") "Computer")
+        (cond ((string= playerType 'Human) 'Computer)
               (t 
-                (string= playerType "Computer") "Human"
+                (string= playerType 'Computer) 'Human
               )))
        )
 

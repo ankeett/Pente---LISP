@@ -4,7 +4,7 @@
   (labels ((make-row (cols)
              (cond
                ((zerop cols) '())
-               (t (cons 0 (make-row (1- cols)))))))
+               (t (cons 'O (make-row (1- cols)))))))
     (cond
       ((zerop rows) '())
       (t (cons (make-row cols)
@@ -65,32 +65,30 @@
 (defun place-stone(board row col symbol)
   (cond
     ((and (<= 0 row 18) (<= 0 col 18))
-    (cond
-      ((equal (get-board-value board row col) 0)
-    
-        (let ((board (update-board board row col symbol)))
-        board)
-      
+      (cond
+        ((equal (get-board-value board row col) 0)
+          (let ((board (update-board board row col symbol)))
+            board)
+          )
+        ((string= (get-board-value board row col) 'O)
+          (let ((board (update-board board row col symbol)))
+            board)
+          )
+        (t
+          (princ "Invalid move.")
+          (terpri)
+          (princ "Please try again.")
+          ()
+          (getUserMove)
+          )
+        )
       )
-      (
-        t
-        (princ "Invalid move.")
-        (terpri)
-        (princ "Please try again.")
-        ()
-        (getUserMove)
-        
-      )
-    )
-    )
-    (
-      t 
+    (t 
       (format t "Indices out of bounds.(from place stone)~%")
+      )
     )
-    
-  
   )
-)
+
       
       
 (defun update-board (board row col new-value)
@@ -125,38 +123,72 @@
 
 
 
+(defun check-consecutive (board row col symbol num-consecutive)
+  (let* ((vertical-up-sum
+          (+ (check-direction board row col symbol 0 -1 num-consecutive)
+             (check-direction board row col symbol 0 1 num-consecutive)))
+         (horizontal-sum
+          (+ (check-direction board row col symbol -1 0 num-consecutive)
+             (check-direction board row col symbol 1 0 num-consecutive)))
+         (diagonal-left-up-sum
+          (+ (check-direction board row col symbol -1 -1 num-consecutive)
+             (check-direction board row col symbol 1 1 num-consecutive)))
+         (diagonal-right-up-sum
+          (+ (check-direction board row col symbol -1 1 num-consecutive)
+             (check-direction board row col symbol 1 -1 num-consecutive))))
+    
+    (cond
+      ((>= vertical-up-sum (1+ num-consecutive))
+       t)
+      ((>= horizontal-sum (1+ num-consecutive))
+       t)
+      ((>= diagonal-left-up-sum (1+ num-consecutive))
+       t)
+      ((>= diagonal-right-up-sum (1+ num-consecutive))
+       t)
+      (t
+       nil))))
+
 ;;check five function
 (defun check-five (board row col symbol)
-  (let* ((vertical-up-sum
-          (+ (check-direction board row col symbol 0 -1 5)
-             (check-direction board row col symbol 0 1 5)))
-         (horizontal-sum
-          (+ (check-direction board row col symbol -1 0 5)
-             (check-direction board row col symbol 1 0 5)))
-         (diagonal-left-up-sum
-          (+ (check-direction board row col symbol -1 -1 5)
-             (check-direction board row col symbol 1 1 5)))
-         (diagonal-right-up-sum
-          (+ (check-direction board row col symbol -1 1 5)
-             (check-direction board row col symbol 1 -1 5))))
+  (check-consecutive board row col symbol 5)
+)
+
+(defun check-four (board row col symbol)
+  (check-consecutive board row col symbol 4)
+)
+
+;; (defun check-five (board row col symbol)
+;;   (let* ((vertical-up-sum
+;;           (+ (check-direction board row col symbol 0 -1 5)
+;;              (check-direction board row col symbol 0 1 5)))
+;;          (horizontal-sum
+;;           (+ (check-direction board row col symbol -1 0 5)
+;;              (check-direction board row col symbol 1 0 5)))
+;;          (diagonal-left-up-sum
+;;           (+ (check-direction board row col symbol -1 -1 5)
+;;              (check-direction board row col symbol 1 1 5)))
+;;          (diagonal-right-up-sum
+;;           (+ (check-direction board row col symbol -1 1 5)
+;;              (check-direction board row col symbol 1 -1 5))))
     
 
-    (cond
-      ((>= vertical-up-sum 6)
+;;     (cond
+;;       ((>= vertical-up-sum 6)
 
-       t)
-      ((>= horizontal-sum 6)
+;;        t)
+;;       ((>= horizontal-sum 6)
        
-       t)
-      ((>= diagonal-left-up-sum 6)
+;;        t)
+;;       ((>= diagonal-left-up-sum 6)
        
-       t)
-      ((>= diagonal-right-up-sum 6)
+;;        t)
+;;       ((>= diagonal-right-up-sum 6)
        
-       t)
-      (t 
-      nil
-      ))))
+;;        t)
+;;       (t 
+;;       nil
+;;       ))))
 
 
 (defun check-direction (board row col symbol delta-row delta-col count)
@@ -168,46 +200,47 @@
                (t (check-direction-rec (+ r delta-row) (+ c delta-col) (+ consecutive-stones 1))))))
     (check-direction-rec row  col 0)))
 
-;;capture function
-;;capture function
-;; (defun check-capture(board row col symbol)
-;;   (let* ((opponent-symbol (cond 
-      
-;;         ((equal symbol (first '(W)))
-;;           (first '(B))
-;;         )
-;;         (t
-;;             (first '(W))
-;;         )
-;;       )
-      
-;;     ))
+;;check-four
+;; (defun check-four (board row col symbol)
+;;   (let* ((vertical-up-sum
+;;           (+ (check-direction board row col symbol 0 -1 4)
+;;              (check-direction board row col symbol 0 1 4)))
+;;          (horizontal-sum
+;;           (+ (check-direction board row col symbol -1 0 4)
+;;              (check-direction board row col symbol 1 0 4)))
+;;          (diagonal-left-up-sum
+;;           (+ (check-direction board row col symbol -1 -1 4)
+;;              (check-direction board row col symbol 1 1 4)))
+;;          (diagonal-right-up-sum
+;;           (+ (check-direction board row col symbol -1 1 4)
+;;              (check-direction board row col symbol 1 -1 4))))
     
-;;       (cond
-;;         ((or (capture-pair board row col 0 1 symbol opponent-symbol 2)
-;;             (capture-pair board row col 0 -1 symbol opponent-symbol 2)
-;;             (capture-pair board row col 1 0 symbol opponent-symbol 2)
-;;             (capture-pair board row col -1 0 symbol opponent-symbol 2)
-;;             (capture-pair board row col 1 1 symbol opponent-symbol 2)
-;;             (capture-pair board row col -1 -1 symbol opponent-symbol 2)
-;;             (capture-pair board row col -1 1 symbol opponent-symbol 2)
-;;             (capture-pair board row col 1 -1 symbol opponent-symbol 2))
-        
-;;         t)
-;;         (t nil))
 
-      
-;;   )
-;; )
+;;     (cond
+;;       ((>= vertical-up-sum 5)
+
+;;        t)
+;;       ((>= horizontal-sum 5)
+       
+;;        t)
+;;       ((>= diagonal-left-up-sum 5)
+       
+;;        t)
+;;       ((>= diagonal-right-up-sum 5)
+       
+;;        t)
+;;       (t 
+;;       nil
+;;       ))))
 
 (defun check-capture(board row col symbol)
   (let* ((opponent-symbol (cond 
       
-        ((string= symbol "W")
-          "B"
+        ((string= symbol 'W)
+          'B
         )
          (t
-             "W"
+             'W
          )
        )
       
@@ -259,10 +292,10 @@
       ((not(and (<= 0 x 18) (<= 0 y 18)))
         ()
       )
-    ((and (equal count 0) (equal (get-board-value board x y) oColor))
+    ((and (equal count 0) (string= (get-board-value board x y) oColor))
       t
     )
-    ((not (equal (get-board-value board x y ) eColor))
+    ((not (string= (get-board-value board x y ) eColor))
       ()
     )
     (t
@@ -276,7 +309,7 @@
     ((equal count 0)
       board)
     (t
-      (let* ((new-board (set-board-value board x y 0))
+      (let* ((new-board (set-board-value board x y 'O))
         (x-next (+ x dx))
         (y-next (+ y dy)))
         (remove-captured new-board x-next y-next dx dy (- count 1)))
@@ -322,3 +355,17 @@
 ;;                 (print-2d-board my-2d-board))))
 ;;             ))
 ;; )
+
+;; ;recursively check capture here
+;; (defun recursively-check-capture (board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
+;;   (let* ((captured-board (check-capture board row col playerColor))
+;;          (next-playerCaptures (+ 1 playerCaptures)))
+;;     (print captured-board)
+;;     (if captured-board
+;;         (recursively-check-capture captured-board row col playerColor next-playerCaptures opponentColor opponentType playerType opponentCaptures)
+;;         (play-game board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
+
+;; (recursively-check-capture new-board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
+
+
+
