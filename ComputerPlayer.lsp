@@ -1,6 +1,16 @@
 (load "Board.lsp")
+(load "test.lsp")
 
-(defun computerMove(board player-symbol)
+(defun computerMove(board player-symbol moveCount)
+  (cond
+  
+  ((equal moveCount 3)
+    (format t "Reason: 3 intersection away from the center of the board~%")
+    (second-move board)
+  ) 
+  (t
+  
+
   (let* ((evaluation-result (evaluate-all-cases board player-symbol))
          (random-value (random-move))
          (row (cond ((equal evaluation-result '(nil nil)) (first random-value))
@@ -10,12 +20,12 @@
          (adjusted-row (- 19 row))
          (move (concatenate 'string (string (code-char (+ 65 col))) (write-to-string adjusted-row))))
     (list row col move)))
+  )
+  )
 
 (defun random-move()
   (list (random 19) (random 19))
 )
-
-
 
 
 ;;IN PROGRESS
@@ -39,6 +49,7 @@
        (let* ((new-board (set-board-value current-board row col player-symbol)))
          (cond
            ((check-five new-board row col player-symbol)
+           
             (list row col)) ; Return the row and col of the winning move
            (t
             (check-next-cell current-board row col))
@@ -185,70 +196,60 @@
   (check-cell board 0 0)
 )
 
+;; (defun evaluate-all-cases (board player-symbol)
+;;   (labels ((run-functions (functions)
+;;              (cond
+;;                ((null functions) '(nil nil)) ; Base case: No more functions to evaluate, return (nil nil)
+;;                ((equal (car functions) '(nil nil)) (run-functions (cdr functions))) ; If the result is null, move on to the next function
+;;                (t (car functions)))) ; Return the non-nil result
+;;            )
+;;     (run-functions
+;;      (list (find-winning-move board player-symbol)
+;;            (defend-winning-move board player-symbol)
+;;            (make-four-move board player-symbol)
+;;            (defend-four-move board player-symbol)
+;;            (find-capture-position board player-symbol)
+;;            (defend-capture-position board player-symbol)
+;;            (make-consecutive-move board player-symbol 3)
+;;            (make-consecutive-move board player-symbol 2)))))
+
 (defun evaluate-all-cases (board player-symbol)
-  (labels ((run-functions (functions)
-             (cond
-               ((null functions) '(nil nil)) ; Base case: No more functions to evaluate, return (nil nil)
-               ((equal (car functions) '(nil nil)) (run-functions (cdr functions))) ; If the result is null, move on to the next function
-               (t (car functions)))) ; Return the non-nil result
-           )
-    (run-functions
-     (list (find-winning-move board player-symbol)
-           (defend-winning-move board player-symbol)
-           (make-four-move board player-symbol)
-           (defend-four-move board player-symbol)
-           (find-capture-position board player-symbol)
-           (defend-capture-position board player-symbol)
-           (make-consecutive-move board player-symbol 3)
-           (make-consecutive-move board player-symbol 2)))))
-
-
-;; Usage example:
-;; To find the first cell with three consecutive symbols:
-;; (make-consecutive-move board 'X 3)
-
-;; To find the first cell with two consecutive symbols:
-;; (make-consecutive-move board 'O 2)
-
-
-;;for making consecutive
-
-
-;; Usage example:
-;; To check for three consecutive symbols:
-;; (check-consecutive board 1 1 'X 3)
-
-;; To check for two consecutive symbols:
-;; (check-consecutive board 2 2 'O 2)
-
-
-
-
-;; (let* ((my-2d-board
-;;       '((0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 "W" "W" "B" "B" 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-;;         ))
-;;   (print-2d-board my-2d-board)
-;;   ;;(print (get-board-value my-2d-board 2 0))
-;;   (print (defend-capture-position my-2d-board "B"))
-
-
-;;   (print (empty-cell-p my-2d-board 4 0))
-;; )
+  ;; Define the evaluation order
+  (let* ((winning-move (find-winning-move board player-symbol))
+         (defending-win (defend-winning-move board player-symbol))
+         (make-four (make-four-move board player-symbol))
+         (defending-four (defend-four-move board player-symbol))
+         (capturing-opponent (find-capture-position board player-symbol))
+         (defending-capture (defend-capture-position board player-symbol))
+         (max-consecutive-pos3 (make-consecutive-move board player-symbol 3))
+         (max-consecutive-pos2 (make-consecutive-move board player-symbol 2))
+         (random-move (random-move)))
+    ;; Check each condition in order
+    (cond
+      ((not (equal (car winning-move) nil))
+       (format t "Reason: Winning Move~%")
+       winning-move)
+      ((not (equal (car defending-win) nil))
+       (format t "Reason: Defending Win~%")
+       defending-win)
+      ((not (equal (car make-four) nil))
+       (format t "Reason: Making Four~%")
+       make-four)
+      ((not (equal (car defending-four) nil))
+       (format t "Reason: Defending Four~%")
+       defending-four)
+      ((not (equal (car capturing-opponent) nil))
+       (format t "Reason: Capturing Opponent~%")
+       capturing-opponent)
+      ((not (equal (car defending-capture) nil))
+       (format t "Reason: Defending Capture~%")
+       defending-capture)
+      ((not (equal (car max-consecutive-pos3) nil))
+       (format t "Reason: Max Consecutive of 3~%")
+       max-consecutive-pos3)
+      ((not (equal (car max-consecutive-pos2) nil))
+       (format t "Reason: Max Consecutive of 2~%")
+       max-consecutive-pos2)
+      (t
+       (format t "Reason: Random Move~%")
+       random-move))))

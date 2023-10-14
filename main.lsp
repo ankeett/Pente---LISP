@@ -5,7 +5,7 @@
 (load "test.lsp")
 
 
-(defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
+(defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)
   (print-2d-board board)
   (format t "~a's turn.~%" playerType)
 
@@ -29,12 +29,12 @@
         (
           ;if computer's turn
           (string= playerType 'Computer)
-          (let* ((computer-move (computerMove board playerColor))
+          (let* ((computer-move (computerMove board playerColor moveCount))
                  (row (first computer-move))
                  (col (second computer-move))
                  (new-board (place-stone board row col playerColor)))
-            (captures 'Computer playerCaptures 'Human  opponentCaptures)
             (format t "Computer move: ~a~%" (third computer-move))
+            ;;(captures 'Computer playerCaptures 'Human  opponentCaptures)
               (cond
                 ((check-five new-board row col playerColor)
                 (format t "Five in a row.~%")
@@ -50,24 +50,24 @@
                               (next-playerCaptures (second captured-data)))
                         (cond
                           (captured-board
-                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
+                              (captures 'Computer next-playerCaptures 'Human  opponentCaptures)
+                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))
                           (t
-                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
                       ))
 
                     
                     ))
-              ;;(play-game new-board opponentColor opponentType playerColor playerType opponentCaptures playerCaptures)
           ))
       (
         t 
         (string= playerType 'Human)
         ;get user move
-        (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures))
+        (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount))
               (row (first user-move))
               (col (second user-move)))
           (let* ((new-board (place-stone board row col playerColor)))
-              (captures 'Human playerCaptures 'Computer  opponentCaptures)
+              ;; (captures 'Human playerCaptures 'Computer  opponentCaptures)
             (cond
                 ((check-five new-board row col playerColor)
                 (format t "Five in a row.~%")
@@ -79,27 +79,16 @@
                     (format t "Row: ~d~%" row)
                     (format t "Col: ~d~%" col)
 
-                    ;; (cond
-                    ;;     ((let* ((captured-board (check-capture new-board row col playerColor))
-                    ;;           (next-playerCaptures (+ 1 playerCaptures)
-                    ;;           ))
-                              
-                    ;;       (cond
-                    ;;         (captured-board
-                    ;;           (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
-                    ;;         (t
-                    ;;           (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures playerCaptures))))
-                    ;;     ))
-
                     (cond
                       ((let* ((captured-data (recursively-check-capture new-board row col playerColor playerCaptures))
-                              (captured-board (first captured-data))
+                              (captured-board (first captured-data)) 
                               (next-playerCaptures (second captured-data)))
                         (cond
                           (captured-board
-                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))
+                                (captures 'Human next-playerCaptures 'Computer  opponentCaptures)
+                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))
                           (t
-                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
                       ))
 
                     ))
@@ -153,7 +142,7 @@
 
 (defun start-round (firstPlayerType secondPlayerType)
   (let* ((my-2d-board (make-2d-board 19 19))
-         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0)))
+         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0 1)))
     (values game-result)))
 
 
@@ -293,7 +282,7 @@
     ;;       (format t "Tournament ended.~%")))))
       (let ((game-state (load-game)))
           (format t "Loaded game state: ~A~%" game-state)
-          (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state))))
+          (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state) 0)))
             (let* ((scores (calculate-score result)))
               (format t "-----Tournament Scores-----~%")
               (format t "Human Scores: ~a~%" (+ (first scores) (eighth game-state)))
@@ -309,5 +298,4 @@
     )
     (t
       (tournament 0 0))))
-
 

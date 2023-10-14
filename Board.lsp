@@ -44,9 +44,12 @@
   (cond
     ((null row) nil)
     (t
-      (format t "~3a  " (first row))
+      (let ((cell (first row)))
+        (cond
+          ((string= cell 'O) (format t "~3a  " #\.))
+          (t (format t "~3a  " cell)))
+      )
       (print-board-row-contents (rest row) row-label))))
-
 
 
 (defun set-board-value (board row col new-value)
@@ -366,6 +369,5 @@
 ;;         (play-game board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
 
 ;; (recursively-check-capture new-board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-
 
 

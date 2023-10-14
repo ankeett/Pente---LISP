@@ -49,7 +49,7 @@
         (let* ((user-input (read-line)))
             (format t "You entered: ~a~%" user-input)
 
-            (cond ((equal user-input tossed)
+            (cond ((equal (parse-integer user-input) tossed)
                 (princ "You won the toss.")
                 (terpri)
                 (princ "You will play: White")
