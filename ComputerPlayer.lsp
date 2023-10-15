@@ -4,22 +4,26 @@
 (defun computerMove(board player-symbol moveCount)
   (cond
   
-  ((equal moveCount 3)
-    (format t "Reason: 3 intersection away from the center of the board~%")
-    (second-move board)
-  ) 
-  (t
-  
+    ((equal moveCount 1)
+      (format t "Reason: First stone always at the center of the board~%")
+      (list 9 9 "J10")
+    )
 
-  (let* ((evaluation-result (evaluate-all-cases board player-symbol))
-         (random-value (random-move))
-         (row (cond ((equal evaluation-result '(nil nil)) (first random-value))
-                    (t (first evaluation-result))))
-         (col (cond ((equal evaluation-result '(nil nil)) (second random-value))
-                    (t (second evaluation-result))))
-         (adjusted-row (- 19 row))
-         (move (concatenate 'string (string (code-char (+ 65 col))) (write-to-string adjusted-row))))
-    (list row col move)))
+    (
+      (equal moveCount 3)
+      (format t "Reason: 3 intersection away from the center of the board~%")
+      (second-move board)
+    ) 
+    (t
+      (let* ((evaluation-result (evaluate-all-cases board player-symbol))
+            (random-value (random-move))
+            (row (cond ((equal evaluation-result '(nil nil)) (first random-value))
+                        (t (first evaluation-result))))
+            (col (cond ((equal evaluation-result '(nil nil)) (second random-value))
+                        (t (second evaluation-result))))
+            (adjusted-row (- 19 row))
+            (move (concatenate 'string (string (code-char (+ 65 col))) (write-to-string adjusted-row))))
+        (list row col move)))
   )
   )
 
@@ -76,37 +80,81 @@
   )
 )
 
+;; (defun find-capture-position (board player-symbol)
+;;   (defun check-next-cell (current-board current-row current-col)
+;;     (cond
+;;       ((>= current-row 18)
+;;        (list nil nil)) ; Return nil values if no winning move is found
+;;       ((>= current-col 18)
+;;        (check-cell current-board (+ 1 current-row) 0))
+;;       (t
+;;        (check-cell current-board current-row (+ 1 current-col)))))
+
+;;   (defun check-cell (current-board row col)
+;;     (cond
+;;       ((empty-cell-p current-board row col)
+;;        (let* ((new-board (set-board-value current-board row col player-symbol)))
+;;          (cond
+;;             ((let* ((captured-board (check-capture new-board row col player-symbol)))
+                  
+;;               (cond
+;;                 (captured-board
+;;                   (list row col))
+;;                 (t
+;;                   (check-next-cell current-board row col)
+;;                 )
+;;               ))
+;;             ))
+            
+;;             ))
+;;       (t
+;;        (check-next-cell current-board row col))))
+
+;;   (check-cell board 0 0)
+
+;; )
+
 (defun find-capture-position (board player-symbol)
-  (defun check-next-cell (current-board current-row current-col)
+
+  (defun check-next-cell (current-board current-row current-col maxCaptures maxRow maxCol)
     (cond
       ((>= current-row 18)
-       (list nil nil)) ; Return nil values if no winning move is found
+       (list maxRow maxCol))
       ((>= current-col 18)
-       (check-cell current-board (+ 1 current-row) 0))
+       (check-cell current-board (+ 1 current-row) 0 maxCaptures maxRow maxCol))
       (t
-       (check-cell current-board current-row (+ 1 current-col)))))
+       (check-cell current-board current-row (+ 1 current-col) maxCaptures maxRow maxCol))))
 
-  (defun check-cell (current-board row col)
+  (defun check-cell (current-board row col maxCaptures maxRow maxCol)
     (cond
       ((empty-cell-p current-board row col)
        (let* ((new-board (set-board-value current-board row col player-symbol)))
          (cond
-            ((let* ((captured-board (check-capture new-board row col player-symbol)))
+            ((let* ((captured-board (recursively-check-capture new-board row col player-symbol 0)))
                   
               (cond
-                (captured-board
-                  (list row col))
+                ((first captured-board)
+                  (cond (
+                     (> (second captured-board) maxCaptures)
+                     (check-next-cell current-board row col (second captured-board) row col)
+                  )
+                  (t
+                    (check-next-cell current-board row col maxCaptures maxRow maxCol)
+                  )
+                  
+                  )
+                )
                 (t
-                  (check-next-cell current-board row col)
+                  (check-next-cell current-board row col maxCaptures maxRow maxCol)
                 )
               ))
             ))
             
             ))
       (t
-       (check-next-cell current-board row col))))
+       (check-next-cell current-board row col maxCaptures maxRow maxCol))))
 
-  (check-cell board 0 0)
+  (check-cell board 0 0 0 nil nil)
 
 )
 
@@ -232,9 +280,6 @@
       ((not (equal (car defending-win) nil))
        (format t "Reason: Defending Win~%")
        defending-win)
-      ((not (equal (car make-four) nil))
-       (format t "Reason: Making Four~%")
-       make-four)
       ((not (equal (car defending-four) nil))
        (format t "Reason: Defending Four~%")
        defending-four)
@@ -244,6 +289,9 @@
       ((not (equal (car defending-capture) nil))
        (format t "Reason: Defending Capture~%")
        defending-capture)
+      ((not (equal (car make-four) nil))
+       (format t "Reason: Making Four~%")
+       make-four)
       ((not (equal (car max-consecutive-pos3) nil))
        (format t "Reason: Max Consecutive of 3~%")
        max-consecutive-pos3)

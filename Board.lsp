@@ -4,11 +4,11 @@
   (labels ((make-row (cols)
              (cond
                ((zerop cols) '())
-               (t (cons 'O (make-row (1- cols)))))))
+               (t (cons 'O (make-row (- cols 1)))))))
     (cond
       ((zerop rows) '())
       (t (cons (make-row cols)
-               (make-2d-board (1- rows) cols))))))
+               (make-2d-board (- rows 1) cols))))))
 
 (defun print-1d-row (row)
   (cond
@@ -107,10 +107,13 @@
         (t (cons (first row) (update-row (rest row) (1- col) new-value)))))
 
 (defun get-board-value (board row col)
-    (if (and (<= 0 row 18) (<= 0 col 18)) ; Check if the indices are within bounds
-        (let ((value (get-row-value board row col))) ; Get the value at the specified row and column
-            value) ; Return the value
-        (format t "Indices out of bounds.(from get-board-value)~%")))
+  (cond
+    ((and (<= 0 row 18) (<= 0 col 18))
+     (let ((value (get-row-value board row col)))
+       value)) ; Return the value
+     (t
+      (format t "Indices out of bounds.(from get-board-value)~%")))
+)
 
 (defun get-row-value (board row col)
     (cond
@@ -198,7 +201,7 @@
   (labels ((check-direction-rec (r c consecutive-stones)
              (cond
                ((>= consecutive-stones count) consecutive-stones)
-               ((or (< r 0) (>= r 19) (< c 0) (>= c 18) (not(equal (get-board-value board r c) symbol)))
+               ((or (< r 0) (>= r 19) (< c 0) (>= c 19) (not(equal (get-board-value board r c) symbol)))
                 consecutive-stones)
                (t (check-direction-rec (+ r delta-row) (+ c delta-col) (+ consecutive-stones 1))))))
     (check-direction-rec row  col 0)))
@@ -320,54 +323,3 @@
     )
   )
 )
-
-;; (let* ((my-2d-board
-;;       '(("B" "B" "B" "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 "B" "B" "B" "B" "B" 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" "B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 "W" 0 0 0 0 0 0 "W" 0 0 0 0 0 0 0 0 0 0)
-;;         (0 "W" 0 0 0 0 0 0 "B" "B" 0 0 0 0 0 0 0 0 0)
-;;         (0 "B" 0 0 0 0 0 0 "B" 0 "B" 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 "W" 0 0 "W" 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         ("B" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-;;         (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-;;         ))
-;;   (print-2d-board my-2d-board)
-;;   ;;(print (get-board-value my-2d-board 2 0))
-;;   (cond ((check-five my-2d-board 16 0 "B")
-;;          (format t "Five in a row.~%"))
-;;         (t (format t "No five in a row.~%")))
-
-;;         (cond
-;;             ((let* ((captured-board (check-capture my-2d-board 3 1 "B"))
-;;                   )
-;;               (cond
-;;                 (captured-board
-;;                 (print-2d-board captured-board))
-;;                 (t
-;;                 (print-2d-board my-2d-board))))
-;;             ))
-;; )
-
-;; ;recursively check capture here
-;; (defun recursively-check-capture (board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;   (let* ((captured-board (check-capture board row col playerColor))
-;;          (next-playerCaptures (+ 1 playerCaptures)))
-;;     (print captured-board)
-;;     (if captured-board
-;;         (recursively-check-capture captured-board row col playerColor next-playerCaptures opponentColor opponentType playerType opponentCaptures)
-;;         (play-game board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures))))
-
-;; (recursively-check-capture new-board row col playerColor playerCaptures opponentColor opponentType playerType opponentCaptures)
-
-

@@ -75,12 +75,22 @@
 
     ;;defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
 
+    ;; (cond 
+    ;;         (
+    ;;             (string= playerType 'Human)
+    ;;             (list board humanCapture computerCapture humanScore  computerScore nextPlayerType color-string)
+    ;;         )
+    ;;         (t
+    ;;             (list board computerCapture humanCapture humanScore computerScore  nextPlayerType color-string)
+    ;;         )
+    ;;     ))
+
     (let* ((values (deserialize))
        (board (first values))
        (playerCapture (second values))
-       (playerScore (third values))
-       (opponentCapture (fourth values))
-       (opponentScore (fifth values))
+       (opponentCapture (third values))
+       (humanScore (fourth values))
+       (computerScore (fifth values))
        (playerType (sixth values))
        (color-string (seventh values))
        (playerColor
@@ -100,7 +110,7 @@
        )
 
         
-        (list board playerColor playerType opponentColor opponentType playerCapture opponentCapture playerScore opponentScore)
+        (list board playerColor playerType opponentColor opponentType playerCapture opponentCapture humanScore computerScore)
     )
 )
 
@@ -109,36 +119,34 @@
 (defun deserialize()
   (format t "Enter filename to deserialize: ~%")
   (finish-output)
-  
-  (let* ((filename (read-line)))
-    (with-open-file (stream filename
-                        :direction :input
-                        :if-does-not-exist :error)
-      (let ((data (read stream)))
-       
-        ;; Process the deserialized data as needed
-        ;; For example, you can access elements of the data list
-        (let* ((board (first data))
-                (playerCapture (second data))
-                (playerScore (third data))
-                (opponentCapture (fourth data))
-                (opponentScore (fifth data))
-                (playerType (sixth data))
-                (color-string (seventh data))
-              )
-          ; Continue processing the data
-        
 
-        (cond 
-            (
-                (string= playerType "Human")
-                (list board playerCapture playerScore opponentCapture opponentScore playerType color-string)
-            )
-            (t
-                (list board opponentCapture opponentScore playerCapture playerScore  playerType color-string)
-            )
-        ))
-        
-      ))
-    )
-)
+  (let ((filename (read-line)))
+    (handler-case
+        (with-open-file (stream filename
+                            :direction :input
+                            :if-does-not-exist :error)
+          (let ((data (read stream)))
+            ;; Process the deserialized data as needed
+            ;; For example, you can access elements of the data list
+            (let* ((board (first data))
+                    (humanCapture (second data))
+                    (humanScore (third data))
+                    (computerCapture (fourth data))
+                    (computerScore (fifth data))
+                    (nextPlayerType (sixth data))
+                    (color-string (seventh data)))
+              ; Continue processing the data
+              (cond 
+                ((string= nextPlayerType 'Human)
+                 (list board humanCapture computerCapture humanScore  computerScore nextPlayerType color-string))
+                (t
+                 (list board computerCapture humanCapture humanScore computerScore nextPlayerType color-string))))
+            ))
+      (file-error (e)
+        (format t "File ~A does not exist.~%" filename)
+        (finish-output)
+        (deserialize))))
+  )
+
+
+;;play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)

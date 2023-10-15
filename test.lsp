@@ -1,142 +1,5 @@
 (load "Board.lsp")
 
-(defun convertMove (move)
-  (let* ((colChar (char-upcase (char move 0)))
-         (row (- 19 (parse-integer (subseq move 1))))
-         (col (- (char-code colChar) (char-code #\A))))
-    (list row col)))
-
-
-(defun convertMove (move)
-  (let* ((colChar (char-upcase (char move 0)))
-         (row (- 19 (parse-integer (subseq move 1))))
-         (col (- (char-code colChar) (char-code #\A))))
-    (list row col)))
-
-;; (defun ask-for-help(board playerColor)
-;;   (format t "Help asked")
-
-;; )
-
-;; (defun quit-the-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-;;   (format t "Do you want to serialize the game?(y/n)")
-;;   (finish-output)
-;;   (let ((userInput (read-line)))
-;;     (format t "You entered: ~a~%" userInput)
-
-;;     (cond
-;;     (
-;;       (string= userInput "y")
-;;       (serialize board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-;;     )
-;;     (t
-;;       (exit)
-;;     ))  
-;;   )
-
-;; )
-
-;; (defun serialize(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-;;   (format t "Enter filename: ~%")
-;;   (finish-output)
-
-;;   (let* ((filename (read-line))
-;;          (color-string
-;;           (cond
-;;             ((equal playerColor 'B) 'Black)
-;;             (t 'White)))
-;;          (data
-;;           (cond
-;;             ((string= playerType 'Human)
-;;              (list board playerCaptures 0 opponentCaptures 0 playerType color-string ))
-;;             (t
-;;              (list board opponentCaptures 0 playerCaptures  0 playerType color-string ))))
-;;          )
-
-;;     (with-open-file (stream filename
-;;                         :direction :output
-;;                         :if-exists :supersede
-;;                         :if-does-not-exist :create)
-;;       (print data stream))
-;;     )
-
-;;   (format t "File saved successfully")
-;;   (finish-output)
-;;   (exit)
-;; )
-
-
-
-;; (defun getUserMove (board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-;;   (format t "Enter the move: ")
-;;   (finish-output)
-;;   (let ((userInput (read-line)))
-;;     (format t "You entered: ~a~%" userInput)
-
-;;     (cond 
-;;       ((string= userInput "help")
-;;         (ask-for-help board playerColor))
-;;       ((string= userInput "quit")
-;;         (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-;;       )
-;;       (t
-;;         (let* ((converted (convertMove userInput))
-;;                (row (first converted))
-;;                (col (second converted)))
-;;           (cond
-;;             ((and (>= row 0) (< row 19) (>= col 0) (< col 19))
-;;              (format t "Good input.~%")
-;;              (format t "Row: ~a~%" row)
-;;              (format t "Col: ~a~%" col)
-;;              (return-from getUserMove converted)) ; Return the converted move
-;;             (t
-;;              (format t "Invalid input.~%"))))))
-
-;;     (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures) 
-;;   ))
-
-
-(defun getUserMove (board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)
-  (format t "Enter the move: ")
-  (finish-output)
-  (let* ((userInput (read-line)))
-    (format t "You entered: ~a~%" userInput)
-
-    (cond 
-      ((string= userInput "help")
-        (ask-for-help board playerColor))
-      ((string= userInput "quit")
-        (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures))
-      (t
-        (let* ((converted (convertMove userInput))
-               (row (first converted))
-               (col (second converted)))
-          (cond
-            ((and (>= row 0) (< row 19) (>= col 0) (< col 19))
-             (cond
-               ((= moveCount 3)
-                (cond
-                  ((is-three-points-away "J10" userInput)
-                   (format t "Good input.~%")
-                   (format t "Row: ~a~%" row)
-                   (format t "Col: ~a~%" col)
-                   (return-from getUserMove converted)) ; Return the converted move
-                  (t
-                   (format t "Invalid input: Not three points away from J10.~%"))))
-               (t
-                  (format t "Good input.~%")
-                  (format t "Row: ~a~%" row)
-                  (format t "Col: ~a~%" col)
-                  (return-from getUserMove converted)) ; Return the converted move
-                
-                ))
-            (t
-             (format t "Invalid input.~%"))))))
-
-    (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount) ; Continue the loop to get a new move if necessary
-  ))
-
-
 (defun recursively-check-capture (board row col playerColor playerCaptures)
   (let* ((captured-board (check-capture board row col playerColor)))
     (cond
@@ -174,33 +37,6 @@
   (list (random 19) (random 19))
 )
 
-;; (let* ((my-2d-board
-;;   '((O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O B B O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O)
-;;     (O O O O O O O O O O O O O O O O O O O))
-;;     ))
-;;     (print-2d-board my-2d-board)
-
-;;     (print  (evaluate-second-move my-2d-board 'W))
-
-;; )
-
 
 (defun second-move (board)
   (let* ((row (random 19))
@@ -208,7 +44,7 @@
     (let ((move (convert-to-move row col)))
       (cond
         ((and (is-three-points-away "J10" move) (empty-cell-p board row col))
-         (list row col))
+         (list row col move))
         (t
          (second-move board))))))
 
@@ -234,8 +70,68 @@
           (t nil))))
 
 
+
+
+(defun check-stones(board)
+  (defun check-next-cell (current-board current-row current-col count)
+    (cond
+      ((>= current-row 18)
+        (+ 1 count))
+      ((>= current-col 18)
+       (check-cell current-board (+ 1 current-row) 0 count))
+      (t
+       (check-cell current-board current-row (+ 1 current-col) count))))
+
+  (defun check-cell (current-board row col count)
+    (cond
+      ((empty-cell-p current-board row col)
+       (check-next-cell current-board row col count))
+      (t
+       (check-next-cell current-board row col (+ count 1)))))
+
+  (check-cell board 0 0 0)
+)
+
+ 
+(defun count-four (board symbol)
+  (defun count-in-direction (row col dx dy count)
+    (cond
+      ((and (<= 0 row 18) (<= 0 col 18))
+       (let* ((value (get-board-value board row col)))
+         (cond
+           ((string= value symbol)
+            (count-in-direction (+ row dx) (+ col dy) dx dy (+ count 1)))
+           (t count))))
+       (t 0)))
+
+  (defun count-at-position (row col direction)
+    (let* ((dx (first direction))
+           (dy (second direction))
+           (count (count-in-direction row col dx dy 0)))
+      (cond
+        ((= count 4) 1)
+        (t 0))))
+
+  (defun count-at-coordinates (row col)
+    (cond
+      ((<= row 18)
+       (cond
+         ((<= col 18)
+          (+ (count-at-position row col '(0 1))
+             (count-at-position row col '(1 0))
+             (count-at-position row col '(1 1))
+             (count-at-position row col '(1 -1))
+             (count-at-coordinates row (+ col 1))))
+         (t (count-at-coordinates (+ row 1) 0))))
+      (t 0)))
+
+  (count-at-coordinates 0 0))
+
+
+
+
 (let* ((my-2d-board
-  '((O O O O O O O O O O O O O O O O O O O)
+  '((O O O O O O O O O O O O O O B B B B O)
     (O O O O O O O O O O O O O O O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
@@ -244,11 +140,11 @@
     (O O O O O O O O O O O O O O O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
+    (O O O O O O O W B B B O O O O O O O O)
     (O O O O O O O B B O O O O O O O O O O)
-    (O O O O O O O O O O O O O O O O O O O)
-    (O O O O O O O O O O O O O O O O O O O)
-    (O O O O O O O O O O O O O O O O O O O)
-    (O O O O O O O O O O O O O O O O O O O)
+    (O O O O O O O B O B O O O O O O O O O)
+    (O O O O O O O B O O B O O O O O O O O)
+    (O O O O O O O O O O O B O O O O O O O)
     (O O O O O O O O O O O O B B O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
     (O O O O O O O O O O O O O O O O O O O)
@@ -256,7 +152,9 @@
     (O O O O O O O O O O O O O O O O O O O))
     ))
     (print-2d-board my-2d-board)
+    (print (count-four my-2d-board 'B))
 
-    (print  (second-move my-2d-board))
 
 )
+
+
