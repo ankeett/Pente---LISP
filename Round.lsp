@@ -7,20 +7,7 @@
     (get-welcome-input)
 )
 
-;; (defun get-welcome-input ()
-;;   (format t "Enter something: ")
-;;   (finish-output)
-;;   (let ((user-input (read-line)))
-;;     (format t "You entered: ~a~%" user-input)
 
-;;     (cond ((equal user-input "1")
-;;            (let ((result (start-game)))
-;;              result))
-;;           ((equal user-input "2") (load-game))
-;;           (t (format t "Invalid input.~%")
-;;              (get-welcome-input)))    
-;;   )
-;; )
 (defun get-welcome-input ()
   (format t "Enter 1 to start a new game, 2 to load a game: ~%")
   (let ((user-input (read-line)))
@@ -36,54 +23,56 @@
 
 
 (defun toss-coin()
-    (print (+ 1 (random 2)))
+    (+ 1 (random 2))
 )
 
 (defun start-game()
     (format t "Starting a new game~%")
     (format t "Tossing a coin to decide who plays first~%")
-    (princ "Enter 1 for heads or 2 for tails: ")
-    (terpri)
-    (finish-output)
-    (let* ((tossed (toss-coin)))
-        (let* ((user-input (read-line)))
-            (format t "You entered: ~a~%" user-input)
 
-            (cond ((equal (parse-integer user-input) tossed)
-                (princ "You won the toss.")
-                (terpri)
-                (princ "You will play: White")
-                (terpri)
-                (list 'Human 'Computer))
+    (let* ((tossed (toss-coin)))
+
+        (defun get-user-input()
+            (princ "Enter 1 for heads or 2 for tails: ")
+            (finish-output)
+            (let* ((user-input (read-line)))
+                (format t "You entered: ~a~%" user-input)
+                (handler-case
+                    (let ((parsed-input (parse-integer user-input)))
+                        (cond
+                            ((or (equal parsed-input 1) (equal parsed-input 2))
+                                parsed-input)
+                            (t
+                                (format t "Invalid input. Please enter 1 for heads or 2 for tails.~%")
+                                (terpri)
+                                (get-user-input))))
+                  (error (condition)
+                    (format t "Error: ~a~%" condition)
+                    (terpri)
+                    (get-user-input)))))
+
+        (let* ((user-input (get-user-input)))
+            (cond ((equal user-input tossed)
+                    (princ "You won the toss.")
+                    (terpri)
+                    (princ "You will play: White")
+                    (terpri)
+                    (list 'Human 'Computer))
                 
                 (t
                     (princ "Computer won the toss.")
                     (terpri)
                     (princ "You will play: Black")
                     (terpri)
-                    (list 'Computer 'Human)
-                )    
+                    (list 'Computer 'Human))
             )
-    
         )
     )
 )
 
+
 (defun load-game()
     (format t "Loading a saved game:~%")
-    ;;(list board playerCapture playerScore opponentCapture opponentScore playerType color-string)
-
-    ;;defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-
-    ;; (cond 
-    ;;         (
-    ;;             (string= playerType 'Human)
-    ;;             (list board humanCapture computerCapture humanScore  computerScore nextPlayerType color-string)
-    ;;         )
-    ;;         (t
-    ;;             (list board computerCapture humanCapture humanScore computerScore  nextPlayerType color-string)
-    ;;         )
-    ;;     ))
 
     (let* ((values (deserialize))
        (board (first values))
@@ -108,6 +97,11 @@
                 (string= playerType 'Computer) 'Human
               )))
        )
+
+      (format t "-----------------------------------------~%")
+      (format t "Next player: ~A~%" playerType)
+      (format t "Next player color: ~a~%" color-string)
+      (format t "-----------------------------------------~%")
 
         
         (list board playerColor playerType opponentColor opponentType playerCapture opponentCapture humanScore computerScore)
@@ -147,6 +141,3 @@
         (finish-output)
         (deserialize))))
   )
-
-
-;;play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)

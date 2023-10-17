@@ -5,16 +5,19 @@
   (cond
   
     ((equal moveCount 1)
+      (format t "--------------------------------------------~%")
       (format t "Reason: First stone always at the center of the board~%")
       (list 9 9 "J10")
     )
 
     (
       (equal moveCount 3)
+      (format t "--------------------------------------------~%")
       (format t "Reason: 3 intersection away from the center of the board~%")
       (second-move board)
     ) 
     (t
+      (format t "--------------------------------------------~%")
       (let* ((evaluation-result (evaluate-all-cases board player-symbol))
             (random-value (random-move))
             (row (cond ((equal evaluation-result '(nil nil)) (first random-value))
@@ -80,39 +83,6 @@
   )
 )
 
-;; (defun find-capture-position (board player-symbol)
-;;   (defun check-next-cell (current-board current-row current-col)
-;;     (cond
-;;       ((>= current-row 18)
-;;        (list nil nil)) ; Return nil values if no winning move is found
-;;       ((>= current-col 18)
-;;        (check-cell current-board (+ 1 current-row) 0))
-;;       (t
-;;        (check-cell current-board current-row (+ 1 current-col)))))
-
-;;   (defun check-cell (current-board row col)
-;;     (cond
-;;       ((empty-cell-p current-board row col)
-;;        (let* ((new-board (set-board-value current-board row col player-symbol)))
-;;          (cond
-;;             ((let* ((captured-board (check-capture new-board row col player-symbol)))
-                  
-;;               (cond
-;;                 (captured-board
-;;                   (list row col))
-;;                 (t
-;;                   (check-next-cell current-board row col)
-;;                 )
-;;               ))
-;;             ))
-            
-;;             ))
-;;       (t
-;;        (check-next-cell current-board row col))))
-
-;;   (check-cell board 0 0)
-
-;; )
 
 (defun find-capture-position (board player-symbol)
 
@@ -244,22 +214,6 @@
   (check-cell board 0 0)
 )
 
-;; (defun evaluate-all-cases (board player-symbol)
-;;   (labels ((run-functions (functions)
-;;              (cond
-;;                ((null functions) '(nil nil)) ; Base case: No more functions to evaluate, return (nil nil)
-;;                ((equal (car functions) '(nil nil)) (run-functions (cdr functions))) ; If the result is null, move on to the next function
-;;                (t (car functions)))) ; Return the non-nil result
-;;            )
-;;     (run-functions
-;;      (list (find-winning-move board player-symbol)
-;;            (defend-winning-move board player-symbol)
-;;            (make-four-move board player-symbol)
-;;            (defend-four-move board player-symbol)
-;;            (find-capture-position board player-symbol)
-;;            (defend-capture-position board player-symbol)
-;;            (make-consecutive-move board player-symbol 3)
-;;            (make-consecutive-move board player-symbol 2)))))
 
 (defun evaluate-all-cases (board player-symbol)
   ;; Define the evaluation order

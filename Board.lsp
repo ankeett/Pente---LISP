@@ -164,38 +164,6 @@
   (check-consecutive board row col symbol 4)
 )
 
-;; (defun check-five (board row col symbol)
-;;   (let* ((vertical-up-sum
-;;           (+ (check-direction board row col symbol 0 -1 5)
-;;              (check-direction board row col symbol 0 1 5)))
-;;          (horizontal-sum
-;;           (+ (check-direction board row col symbol -1 0 5)
-;;              (check-direction board row col symbol 1 0 5)))
-;;          (diagonal-left-up-sum
-;;           (+ (check-direction board row col symbol -1 -1 5)
-;;              (check-direction board row col symbol 1 1 5)))
-;;          (diagonal-right-up-sum
-;;           (+ (check-direction board row col symbol -1 1 5)
-;;              (check-direction board row col symbol 1 -1 5))))
-    
-
-;;     (cond
-;;       ((>= vertical-up-sum 6)
-
-;;        t)
-;;       ((>= horizontal-sum 6)
-       
-;;        t)
-;;       ((>= diagonal-left-up-sum 6)
-       
-;;        t)
-;;       ((>= diagonal-right-up-sum 6)
-       
-;;        t)
-;;       (t 
-;;       nil
-;;       ))))
-
 
 (defun check-direction (board row col symbol delta-row delta-col count)
   (labels ((check-direction-rec (r c consecutive-stones)
@@ -206,38 +174,6 @@
                (t (check-direction-rec (+ r delta-row) (+ c delta-col) (+ consecutive-stones 1))))))
     (check-direction-rec row  col 0)))
 
-;;check-four
-;; (defun check-four (board row col symbol)
-;;   (let* ((vertical-up-sum
-;;           (+ (check-direction board row col symbol 0 -1 4)
-;;              (check-direction board row col symbol 0 1 4)))
-;;          (horizontal-sum
-;;           (+ (check-direction board row col symbol -1 0 4)
-;;              (check-direction board row col symbol 1 0 4)))
-;;          (diagonal-left-up-sum
-;;           (+ (check-direction board row col symbol -1 -1 4)
-;;              (check-direction board row col symbol 1 1 4)))
-;;          (diagonal-right-up-sum
-;;           (+ (check-direction board row col symbol -1 1 4)
-;;              (check-direction board row col symbol 1 -1 4))))
-    
-
-;;     (cond
-;;       ((>= vertical-up-sum 5)
-
-;;        t)
-;;       ((>= horizontal-sum 5)
-       
-;;        t)
-;;       ((>= diagonal-left-up-sum 5)
-       
-;;        t)
-;;       ((>= diagonal-right-up-sum 5)
-       
-;;        t)
-;;       (t 
-;;       nil
-;;       ))))
 
 (defun check-capture(board row col symbol)
   (let* ((opponent-symbol (cond 

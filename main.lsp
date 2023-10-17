@@ -5,17 +5,17 @@
 (load "test.lsp")
 
 
-(defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)
+(defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament)
   (print-2d-board board)
+
+  (format t "--------------------------------------------~%")
   (format t "~a's turn.~%" playerType)
+  (format t "~a's color: ~a~%" playerType playerColor)
+  (format t "--------------------------------------------~%")
+
 
   (cond
-    (
-      ;if someone wins
-      ;(check-five board row col playerColor)
-      ;(format t "~a wins!~%" playerType)
-      ()
-    )
+
     (
       ;if the board is full
       ()
@@ -36,8 +36,8 @@
               (
                 cond 
                 (
-                  (string= userInput "y")
-                  (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
+                  (string= (string-downcase userInput) "y")
+                  (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
                   
                 )
               )
@@ -54,7 +54,7 @@
                 (format t "Five in a row.~%")
                 (print-2d-board new-board)
                 ;;return the board and everything
-                (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 5)
+                (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 4)
 
                 )
                 ;;(calculate-score playerCaptures opponentCaptures "Computer"))
@@ -68,15 +68,16 @@
                               (captures 'Computer next-playerCaptures 'Human  opponentCaptures)
                           (cond 
                               ((>= next-playerCaptures 5)
+                              (format t "Five captures.~%")
                               (print-2d-board captured-board)
                               (list captured-board playerColor playerType opponentColor opponentType next-playerCaptures opponentCaptures 0)) 
                               
                             
                             (t
                             
-                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
+                            (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
                           (t
-                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
                       ))
 
                     
@@ -86,7 +87,7 @@
         t 
         (string= playerType 'Human)
         ;get user move
-        (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount))
+        (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament))
               (row (first user-move))
               (col (second user-move)))
           (let* ((new-board (place-stone board row col playerColor)))
@@ -96,7 +97,7 @@
                 (format t "Five in a row.~%")
                 (print-2d-board new-board)
                 ;;return the board and everything here
-                (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 5))
+                (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 4))
                 ;send 5 for 5 in a row to add to score
                 ;;(calculate-score playerCaptures opponentCaptures "Human"))
                 (t
@@ -117,9 +118,9 @@
                               
                             
                             (t
-                              (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
+                              (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
                           (t
-                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount)))))
+                            (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
                       ))
 
                     ))
@@ -134,10 +135,10 @@
 
 
 (defun captures(playerType playerCapture opponentType opponentCapture)
-  (format t "--------------------------------~%")
+  (format t "--------------------------------------------~%")
   (format t "~a Captures: ~a~%" playerType playerCapture)
   (format t "~a Captures: ~a~%" opponentType opponentCapture)
-  (format t "--------------------------------~%"))
+  (format t "--------------------------------------------~%"))
 
 
 ;;(list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
@@ -155,18 +156,18 @@
 
     (cond 
       ((equal winnerType 'Human)
-        (format t "Human Scores: ~a~%" (+ winnerCapture isFiveinarow (- (count-four board winnerColor) 1)))
+        (format t "Human Scores: ~a~%" (+ winnerCapture isFiveinarow (count-four board winnerColor)))
         (format t "Computer Scores: ~a~%" (+ opponentCapture (count-four board opponentColor)))
-        (list (+ winnerCapture isFiveinarow (- (count-four board winnerColor) 1 )) (+ opponentCapture (count-four board opponentColor))))
+        (list (+ winnerCapture isFiveinarow (count-four board winnerColor)) (+ opponentCapture (count-four board opponentColor))))
       (t
         (format t "Human Scores: ~a~%" (+ opponentCapture (count-four board opponentColor)))
-        (format t "Computer Scores: ~a~%" (+ winnerCapture isFiveinarow (- (count-four board winnerColor) 1)))
-        (list (+ opponentCapture (count-four board opponentColor)) (+ winnerCapture isFiveinarow (- (count-four board winnerColor) 1)))))
+        (format t "Computer Scores: ~a~%" (+ winnerCapture isFiveinarow (count-four board winnerColor)))
+        (list (+ opponentCapture (count-four board opponentColor)) (+ winnerCapture isFiveinarow (count-four board winnerColor)))))
     ))
 
-(defun start-round (firstPlayerType secondPlayerType)
+(defun start-round (firstPlayerType secondPlayerType humanScore computerScore)
   (let* ((my-2d-board (make-2d-board 19 19))
-         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0 1)))
+         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0 1 humanScore computerScore)))
     (values game-result)))
 
 
@@ -174,15 +175,15 @@
 
  (cond
   ((> humanScore computerScore)
-   (let* ((result (start-round 'Human 'Computer)))
+   (let* ((result (start-round 'Human 'Computer humanScore computerScore)))
      (let* ((scores (calculate-score result)))
        (format t "-----Tournament Scores-----~%")
        (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
        (format t "Computer Scores: ~a~%" (+ (second scores) computerScore))
-       (format t "Continue the tournament? ('y' to confirm): ~%")
+       (format t "Continue the tournament? (Enter 'y' to confirm!): ~%")
        (let ((response (read-line)))
          (cond
-           ((string= response "y")
+           ((string= (string-downcase response) "y")
             (tournament (+ (first scores) humanScore) (+ (second scores) computerScore)))
            (t
             (format t "Tournament ended.~%")
@@ -193,15 +194,15 @@
   )
 
   ((< humanScore computerScore)
-   (let* ((result (start-round 'Computer 'Human)))
+   (let* ((result (start-round 'Computer 'Human humanScore computerScore)))
      (let* ((scores (calculate-score result)))
        (format t "-----Tournament Scores-----~%")
        (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
        (format t "Computer Scores: ~a~%" (+ (second scores) computerScore))
-       (format t "Continue the tournament? ('y' to confirm.): ~%")
+       (format t "Continue the tournament? (Enter 'y' to confirm!): ~%")
        (let ((response (read-line)))
          (cond
-           ((string= response "y")
+           ((string= (string-downcase response) "y")
             (tournament (+ (first scores) humanScore) (+ (second scores) computerScore)))
            (t
             (format t "Tournament ended.~%")
@@ -212,15 +213,15 @@
 
   (t
    (let* ((playerList (start-game))
-          (result (start-round (first playerList) (second playerList)))
+          (result (start-round (first playerList) (second playerList) humanScore computerScore))
           (scores (calculate-score result)))
      (format t "-----Tournament Scores-----~%")
      (format t "Human Scores: ~a~%" (+ (first scores) humanScore))
      (format t "Computer Scores: ~a~%" (+ (second scores) computerScore))
-     (format t "Continue the tournament? ('y' to confirm.): ~%")
+     (format t "Continue the tournament? (Enter 'y' to confirm!): ~%")
      (let ((response (read-line)))
        (cond
-         ((string= response "y")
+         ((string= (string-downcase response) "y")
           (tournament (+ (first scores) humanScore) (+ (second scores) computerScore)))
          (t
           (format t "Tournament ended.~%")
@@ -256,16 +257,15 @@
   (cond
     ((not(equal response "1"))
       (let ((game-state (load-game)))
-          (format t "Loaded game state: ~A~%" game-state)
-          (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state) (check-stones (first game-state)))))
+          (let ((result (play-game (first game-state) (second game-state) (third game-state) (fourth game-state) (fifth game-state) (sixth game-state) (seventh game-state) (check-stones (first game-state)) (eighth game-state) (ninth game-state) )))
             (let* ((scores (calculate-score result)))
               (format t "-----Tournament Scores-----~%")
               (format t "Human Scores: ~a~%" (+ (first scores) (eighth game-state)))
               (format t "Computer Scores: ~a~%" (+ (second scores) (ninth game-state)))
-              (format t "Continue the tournament? ('y' to confirm): ~%")
+              (format t "Continue the tournament? (Enter 'y' to confirm!): ~%")
               (let ((response (read-line)))
                 (cond
-                  ((string= response "y")
+                  ((string= (string-downcase response) "y")
                    (tournament (+ (first scores) (eighth game-state)) (+ (second scores) (ninth game-state))))
                   (t
                    (format t "Tournament ended.~%")

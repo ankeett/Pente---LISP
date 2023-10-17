@@ -25,16 +25,16 @@
   )
 )
 
-(defun quit-the-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
-  (format t "Do you want to serialize the game? (Enter 'y' to confirm.)")
+(defun quit-the-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
+  (format t "Do you want to serialize the game? (Enter 'y' to confirm!)~%")
   (finish-output)
   (let ((userInput (read-line)))
     (format t "You entered: ~a~%" userInput)
 
     (cond
     (
-      (string= userInput "y")
-      (serialize board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
+      (string= (string-downcase userInput) "y")
+      (serialize board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
     )
     (t
       (exit)
@@ -43,8 +43,9 @@
 
 )
 
-(defun serialize(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures)
+(defun serialize(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
   (format t "Enter filename: ~%")
+  (format t "~A~%" playerType)
   (finish-output)
 
   (let* ((filename (read-line))
@@ -55,9 +56,10 @@
          (data
           (cond
             ((string= playerType 'Human)
-             (list board playerCaptures 0 opponentCaptures 0 playerType color-string ))
+            (format t "test~%")
+             (list board playerCaptures humanTournament opponentCaptures computerTournament playerType color-string ))
             (t
-             (list board opponentCaptures 0 playerCaptures  0 playerType color-string ))))
+             (list board opponentCaptures humanTournament playerCaptures computerTournament playerType color-string ))))
          )
 
     (with-open-file (stream filename
@@ -72,7 +74,7 @@
   (exit)
 )
 
-(defun getUserMove (board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount) 
+(defun getUserMove (board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament) 
   (cond
     ((= moveCount 1)
       (format t "Reason: First move always at the center of the board~%")
@@ -87,10 +89,10 @@
     (format t "You entered: ~a~%" userInput)
 
     (cond 
-      ((string= userInput "help")
+      ((string= (string-downcase userInput) "help")
         (ask-for-help board playerColor moveCount))
-      ((string= userInput "quit")
-        (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures))
+      ((string= (string-downcase userInput) "quit")
+        (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament))
       (t
         (let* ((converted (convertMove userInput))
                (row (first converted))
@@ -109,25 +111,15 @@
                ((= moveCount 3)
                 (cond
                   ((is-three-points-away "J10" userInput)
-                   (format t "Good input.~%")
-                   (format t "Row: ~a~%" row)
-                   (format t "Col: ~a~%" col)
                    (return-from getUserMove converted)) ; Return the converted move
                   (t
                    (format t "Invalid input: Not three points away from J10.~%"))))
                (t
-                  (format t "Good input.~%")
-                  (format t "Row: ~a~%" row)
-                  (format t "Col: ~a~%" col)
                   (return-from getUserMove converted)) ; Return the converted move
-                
                 ))
             (t
              (format t "Invalid input.~%"))))))
 
-    (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount)
+    (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament)
   ))  )
   )
-
-
-
