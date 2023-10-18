@@ -1,7 +1,3 @@
-(load "Board.lsp")
-(load "test.lsp")
-
-
 ;; /* *********************************************************************
 ;; Function Name: computerMove
 ;; Purpose: Determines the computer's move on the game board based on the current game state.
@@ -48,6 +44,35 @@
   )
 )
 
+;; /* *********************************************************************
+;; Function Name: second-move
+;; Purpose: Generate a random valid move for the second turn of the game.
+;; Parameters:
+;;     - board: The game board represented as a two-dimensional array.
+;; Return Value:
+;;     - A list containing the generated row, column, and move (in "XY" format).
+;;     - If a valid move is generated, it will satisfy the conditions defined below.
+;;       Otherwise, the function will recursively attempt to generate a valid move.
+;; Algorithm:
+;;     1. Generate a random row and column within the board's dimensions (0-18).
+;;     2. Convert the row and column into a move in the "A1" format.
+;;     3. Check if the generated move is at least three points away from "J10" (the center).
+;;     4. Check if the cell at the specified row and column is empty.
+;;     5. If both conditions are met, return the generated row, column, and move.
+;;     6. If not, recursively call the function to generate another move.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun second-move (board)
+  (let* ((row (random 19))
+        (col (random 19)))
+    (let ((move (convert-to-move row col)))
+      (cond
+        ((and (is-three-points-away "J10" move) (empty-cell-p board row col))
+         (list row col move))
+        (t
+         (second-move board))))))
+
+
 
 ;; /* *********************************************************************
 ;; Function Name: random-move
@@ -69,7 +94,7 @@
 ;; Function Name: empty-cell-p
 ;; Purpose: Checks if a cell on the game board is empty (contains 'O').
 ;; Parameters:
-;; - board (list of lists): A 2D board represented as a list of rows. Passed by reference.
+;; - board (list of lists): A 2D board represented as a list of rows.
 ;; - row (integer): The row index of the cell to be checked.
 ;; - col (integer): The column index of the cell to be checked.
 ;; Return Value: 

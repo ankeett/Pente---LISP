@@ -1,51 +1,4 @@
 ;; /* *********************************************************************
-;; Function Name: welcome
-;; Purpose: Display a welcome message to the user and prompt for the choice to start a new game or load a saved game.
-;; Parameters: None
-;; Return Value: None (output messages and function calls)
-;; Algorithm:
-;;     - Display a welcome message for the Pente game.
-;;     - Inform the user that they will be playing against the computer.
-;;     - Provide the user with two choices: start a new game (1) or load a saved game (2).
-;;     - Call the `get-welcome-input` function to get the user's choice.
-;; Assistance Received: None
-;; ********************************************************************* */
-
-(defun welcome()
-    (format t "Welcome to Pente!~%")
-    (format t "You will be playing against the computer.~%")
-    (format t "Choose:~%")
-    (format t "1. Start a new game~%")
-    (format t "2. Load a saved game~%")
-    (get-welcome-input)
-)
-
-;; /* *********************************************************************
-;; Function Name: get-welcome-input
-;; Purpose: Prompt the user for their choice and return it.
-;; Parameters: None
-;; Return Value: "1" if the user chooses to start a new game, "2" if they choose to load a saved game.
-;; Algorithm:
-;;     - Prompt the user to enter "1" to start a new game or "2" to load a game.
-;;     - Read the user's input.
-;;     - If the input is "1" or "2," return the corresponding choice.
-;;     - If the input is invalid, display an error message and prompt the user again.
-;; Assistance Received: None
-;; ********************************************************************* */
-(defun get-welcome-input ()
-  (format t "Enter 1 to start a new game, 2 to load a game: ~%")
-  (let ((user-input (read-line)))
-    (cond
-      ((equal user-input "1")
-       "1")
-      ((equal user-input "2")
-       "2")
-      (t
-       (format t "Invalid input.~%")
-       (get-welcome-input)))))
-
-
-;; /* *********************************************************************
 ;; Function Name: toss-coin
 ;; Purpose: Simulate a coin toss and return the result.
 ;; Parameters: None
@@ -189,57 +142,211 @@
 )
 
 
-;; /* *********************************************************************
-;; Function Name: deserialize
-;; Purpose: Deserialize a saved game state from a file and extract the game data.
-;; Parameters: None
-;; Return Value:
-;;     - A list containing the deserialized game state with the following elements:
-;;         - (first) the game board.
-;;         - (second) the human player's captures.
-;;         - (third) the computer player's captures.
-;;         - (fourth) the human player's score.
-;;         - (fifth) the computer player's score.
-;;         - (sixth) the type of the next player (Human or Computer).
-;;         - (seventh) the color of the next player (Black or White).
+
+
+
+  ;; /* *********************************************************************
+;; Function Name: play-game
+;; Purpose: Manages the gameplay logic of the Pente game between two players.
+;; Parameters:
+;; - board (list of lists): A 2D board represented as a list of rows. Passed by reference.
+;; - playerColor (any): The symbol representing the current player's color.
+;; - playerType (any): The type of the current player (e.g., human or computer).
+;; - opponentColor (any): The symbol representing the opponent's color.
+;; - opponentType (any): The type of the opponent (e.g., human or computer).
+;; - playerCaptures (integer): The number of captures made by the current player.
+;; - opponentCaptures (integer): The number of captures made by the opponent.
+;; - moveCount (integer): The current move count.
+;; - humanTournament (integer): A number representing the human player's tournament score.
+;; - computerTournament (integer): A number representing the computer player's tournament score.
+;; Return Value: A list containing the updated board, playerColor, playerType, opponentColor, opponentType, playerCaptures, and moveCount. The return value is for managing the game state.
 ;; Algorithm:
-;;     1. Prompt the user to enter the filename of the saved game for deserialization.
-;;     2. Attempt to open the specified file for reading.
-;;     3. If the file doesn't exist, handle the file-error condition and prompt the user to enter a valid filename.
-;;     4. Read the deserialized data from the file.
-;;     5. Extract the necessary information from the deserialized data, such as the board, captures, scores, next player's type, and color.
-;;     6. Determine the type of the next player based on the deserialized data.
-;;     7. Return a list containing the extracted game state elements.
+;; 1. Print the 2D game board.
+;; 2. Display information about the current player's turn (name and color).
+;; 3. For computer players, prompt to quit and handle quit options.
+;; 4. Determine the player's move based on their type (computer or human).
+;; 5. Check if the game has ended due to a win or draw.
+;; 6. Handle captures (if any).
+;; 7. Recursively call `play-game` to continue the game.
 ;; Assistance Received: None
 ;; ********************************************************************* */
-(defun deserialize()
-  (format t "Enter filename to deserialize: ~%")
-  (finish-output)
+(defun play-game(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament)
+  (print-2d-board board)
 
-  (let ((filename (read-line)))
-    (handler-case
-        (with-open-file (stream filename
-                            :direction :input
-                            :if-does-not-exist :error)
-          (let ((data (read stream)))
-            ;; Process the deserialized data as needed
-            ;; For example, you can access elements of the data list
-            (let* ((board (first data))
-                    (humanCapture (second data))
-                    (humanScore (third data))
-                    (computerCapture (fourth data))
-                    (computerScore (fifth data))
-                    (nextPlayerType (sixth data))
-                    (color-string (seventh data)))
-              ; Continue processing the data
-              (cond 
-                ((string= nextPlayerType 'Human)
-                 (list board humanCapture computerCapture humanScore  computerScore nextPlayerType color-string))
-                (t
-                 (list board computerCapture humanCapture humanScore computerScore nextPlayerType color-string))))
-            ))
-      (file-error (e)
-        (format t "File ~A does not exist.~%" filename)
-        (finish-output)
-        (deserialize))))
+  (format t "--------------------------------------------~%")
+  (format t "~a's turn.~%" playerType)
+  (format t "~a's color: ~a~%" playerType playerColor)
+  (format t "--------------------------------------------~%")
+  (cond
+    (
+      ;if computer's turn
+      (string= playerType 'Computer)
+      (format t "Do you want to quit? (Enter 'y' to quit)")
+      (finish-output)
+      (let* ((userInput (read-line)))
+        (format t "You entered: ~a~%" userInput)
+          (
+            cond 
+            (
+              (string= (string-downcase userInput) "y")
+              (quit-the-game board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
+              
+            )
+          )
+      )
+
+      (let* ((computer-move (computerMove board playerColor moveCount))
+              (row (first computer-move))
+              (col (second computer-move))
+              (new-board (place-stone board row col playerColor)))
+        (format t "Computer move: ~a~%" (third computer-move))
+        
+          (cond
+            ((check-five new-board row col playerColor)
+            (format t "Five in a row.~%")
+            (print-2d-board new-board)
+            ;;return the board and everything
+            (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 4)
+            )
+            (t
+                (cond
+                  ((let* ((captured-data (recursively-check-capture new-board row col playerColor playerCaptures))
+                          (captured-board (first captured-data))
+                          (next-playerCaptures (second captured-data)))
+                    (cond
+                      (captured-board
+                          (captures 'Computer next-playerCaptures 'Human  opponentCaptures)
+                      (cond 
+                          ((>= next-playerCaptures 5)
+                          (format t "Five captures.~%")
+                          (print-2d-board captured-board)
+                          (list captured-board playerColor playerType opponentColor opponentType next-playerCaptures opponentCaptures 0)) 
+                          
+                        
+                        (t
+                        
+                        (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
+                      (t
+                        (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
+                  ))
+
+                
+                ))
+      ))
+  (
+    t 
+    (string= playerType 'Human)
+    ;get user move
+    (let* ((user-move (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament))
+          (row (first user-move))
+          (col (second user-move)))
+      (let* ((new-board (place-stone board row col playerColor)))
+        (cond
+            ((check-five new-board row col playerColor)
+            (format t "Five in a row.~%")
+            (print-2d-board new-board)
+            ;;return the board and everything here
+            (list new-board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures 4))
+            (t
+
+                (cond
+                  ((let* ((captured-data (recursively-check-capture new-board row col playerColor playerCaptures))
+                          (captured-board (first captured-data)) 
+                          (next-playerCaptures (second captured-data)))
+                    (cond
+                      (captured-board
+                            (captures 'Human next-playerCaptures 'Computer  opponentCaptures)
+
+                        (cond 
+                          ((>= next-playerCaptures 5)
+                          (format t "Five captures.~%")
+                          (print-2d-board captured-board)
+                          (list captured-board playerColor playerType opponentColor opponentType next-playerCaptures opponentCaptures 0)) 
+                          
+                        
+                        (t
+                          (play-game captured-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
+                      (t
+                        (play-game new-board opponentColor opponentType playerColor playerType opponentCaptures next-playerCaptures (+ 1 moveCount) humanTournament computerTournament))))
+                  ))
+
+                ))
+      )
+    )
   )
+
+)
+)
+
+;; /* *********************************************************************
+;; Function Name: captures
+;; Purpose: Display the current number of captures for both players.
+;; Parameters:
+;;     - playerType: The type of the current player (e.g., 'Human' or 'Computer').
+;;     - playerCapture: The number of captures for the current player.
+;;     - opponentType: The type of the opponent player.
+;;     - opponentCapture: The number of captures for the opponent player.
+;; Return Value: None (void function for display purposes).
+;; ********************************************************************* */
+(defun captures(playerType playerCapture opponentType opponentCapture)
+  (format t "--------------------------------------------~%")
+  (format t "~a Captures: ~a~%" playerType playerCapture)
+  (format t "~a Captures: ~a~%" opponentType opponentCapture)
+  (format t "--------------------------------------------~%"))
+
+
+;; /* *********************************************************************
+;; Function Name: calculate-score
+;; Purpose: Calculate and display the scores for both players in the game.
+;; Parameters:
+;;    - result: A list containing game result data, including the board state, player types, captures, and other information.
+
+;; Return Value: A list of two integers representing the scores of the two players.
+
+;; Algorithm: This function takes a result data list as input, which includes the game board, player types, captures, and other relevant information. It calculates and displays the scores for both players in the game based on the specified rules. The scores are printed to the standard output with proper labeling and formatting.
+
+;; Assistance Received: None.
+;; ********************************************************************* */
+(defun calculate-score (result)
+  (let* ((board (first result))
+         (winnerColor (second result))
+         (winnerType (third result))
+         (opponentColor (fourth result))
+         (opponentType (fifth result))
+         (winnerCapture (sixth result))
+         (opponentCapture (seventh result))
+         (isFiveinarow (eighth result )))
+
+    (cond 
+      ((equal winnerType 'Human)
+        (format t "Human Scores: ~a~%" (+ winnerCapture isFiveinarow (count-four board winnerColor)))
+        (format t "Computer Scores: ~a~%" (+ opponentCapture (count-four board opponentColor)))
+        (list (+ winnerCapture isFiveinarow (count-four board winnerColor)) (+ opponentCapture (count-four board opponentColor))))
+      (t
+        (format t "Human Scores: ~a~%" (+ opponentCapture (count-four board opponentColor)))
+        (format t "Computer Scores: ~a~%" (+ winnerCapture isFiveinarow (count-four board winnerColor)))
+        (list (+ opponentCapture (count-four board opponentColor)) (+ winnerCapture isFiveinarow (count-four board winnerColor)))))
+   ))
+
+
+;; /* *********************************************************************
+;; Function Name: start-round
+;; Purpose: Start a new round of the game with the specified player types and scores.
+;; Parameters:
+;;    - firstPlayerType: The type of the first player ('Human' or 'Computer').
+;;    - secondPlayerType: The type of the second player ('Human' or 'Computer').
+;;    - humanScore: The current score of the human player.
+;;    - computerScore: The current score of the computer player.
+
+;; Return Value: A list containing the game result, including the final state of the board and updated scores.
+
+;; Algorithm: This function initializes a 19x19 game board and then proceeds to play a new round of the game with the specified player types and scores. The game result, including the final board state and scores, is returned.
+
+;; Assistance Received: None.
+;; ********************************************************************* */
+(defun start-round (firstPlayerType secondPlayerType humanScore computerScore)
+  (let* ((my-2d-board (make-2d-board 19 19))
+         (game-result (play-game my-2d-board 'W firstPlayerType 'B secondPlayerType 0 0 1 humanScore computerScore)))
+    (values game-result)))
+
+

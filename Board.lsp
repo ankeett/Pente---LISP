@@ -1,5 +1,3 @@
-(load "HumanPlayer.lsp")
-
 ;; /* *********************************************************************
 ;; Function Name: make-2d-board
 ;; Purpose: Creates a 2D board consisting of 'O' (representing empty cells).
@@ -612,3 +610,139 @@
     )
   )
 )
+
+;; /* *********************************************************************
+;; Function Name: recursively-check-capture
+;; Purpose: Recursively check and capture connected stones in the game board.
+;; Parameters:
+;;     - board: A 2D game board represented as a matrix.
+;;     - row: The row coordinate of the stone to check for capture.
+;;     - col: The column coordinate of the stone to check for capture.
+;;     - playerColor: The color of the player whose stones are being checked for capture.
+;;     - playerCaptures: The count of captures by the player.
+;; Return Value:
+;;     - A list containing two elements:
+;;         - (first) the game board after checking and capturing stones.
+;;         - (second) the updated count of captures by the player.
+;; Algorithm:
+;;     1. Check if the stone at the specified row and column (row, col) is capturable.
+;;     2. If the stone is capturable, recursively capture connected stones and update the board.
+;;     3. Repeat the capture process until no more connected stones can be captured.
+;;     4. Return a list containing the updated game board and the count of player captures.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun recursively-check-capture (board row col playerColor playerCaptures)
+  (let* ((captured-board (check-capture board row col playerColor)))
+    (cond
+      (captured-board
+       (recursively-check-capture captured-board row col playerColor (+ 1 playerCaptures)))
+      (t
+       (list board playerCaptures)))))
+
+
+;; /* *********************************************************************
+;; Function Name: is-empty-cell
+;; Purpose: Check if a cell on the game board is empty (contains 'O').
+;; Parameters:
+;;     - board: The game board represented as a two-dimensional array.
+;;     - row: The row index of the cell to check.
+;;     - col: The column index of the cell to check.
+;; Return Value:
+;;     - Returns true if the cell at the specified row and column is empty ('O').
+;;       Otherwise, returns false.
+;; Algorithm:
+;;     1. Get the value of the cell at the specified row and column from the game board.
+;;     2. Check if the cell value is equal to 'O', indicating an empty cell.
+;;     3. Return true if the cell is empty; otherwise, return false.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun is-empty-cell (board row col)
+  (string= (get-board-value board row col) 'O)
+  )
+
+
+;; /* *********************************************************************
+;; Function Name: check-stones
+;; Purpose: Count the number of stones on the game board.
+;; Parameters:
+;;     - board: The game board represented as a two-dimensional array.
+;; Return Value:
+;;     - The total count of stones (occupied cells) on the game board.
+;; Algorithm:
+;;     1. Initialize a count to 0.
+;;     2. Iterate through each cell in the two-dimensional board:
+;;        a. If the cell is empty, continue to the next cell.
+;;        b. If the cell is occupied (contains a stone), increment the count by 1.
+;;     3. Return the final count of stones on the board.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun check-stones(board)
+  (defun check-next-cell (current-board current-row current-col count)
+    (cond
+      ((>= current-row 18)
+        ;;this count gives the moveCount
+        (+ 1 count))
+      ((>= current-col 18)
+       (check-cell current-board (+ 1 current-row) 0 count))
+      (t
+       (check-cell current-board current-row (+ 1 current-col) count))))
+
+  (defun check-cell (current-board row col count)
+    (cond
+      ((empty-cell-p current-board row col)
+       (check-next-cell current-board row col count))
+      (t
+       (check-next-cell current-board row col (+ count 1)))))
+
+  (check-cell board 0 0 0)
+)
+
+;; /* *********************************************************************
+;; Function Name: count-four
+;; Purpose: Count the number of open four-in-a-row positions for a given player symbol on the game board.
+;; Parameters:
+;;     - board: The game board represented as a two-dimensional array.
+;;     - symbol: The player's symbol ('W' for White or 'B' for Black).
+;; Return Value:
+;;     - The count of open four-in-a-row positions for the specified player symbol.
+;; Algorithm:
+;;     1. Define an internal function count-in-direction to count consecutive symbols in a given direction.
+;;     2. Define an internal function count-at-position to count open four-in-a-row positions at a specific cell.
+;;     3. Define an internal function count-at-coordinates to iterate through all cells and count open four-in-a-row positions.
+;;     4. Initialize the count by calling count-at-coordinates starting from the top-left corner of the board.
+;;     5. Return the final count of open four-in-a-row positions for the player symbol.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun count-four (board symbol)
+  (defun count-in-direction (row col dx dy count)
+    (cond
+      ((and (<= 0 row 18) (<= 0 col 18))
+       (let* ((value (get-board-value board row col)))
+         (cond
+           ((string= value symbol)
+            (count-in-direction (+ row dx) (+ col dy) dx dy (+ count 1)))
+           (t count))))
+       (t 0)))
+
+  (defun count-at-position (row col direction)
+    (let* ((dx (first direction))
+           (dy (second direction))
+           (count (count-in-direction row col dx dy 0)))
+      (cond
+        ((= count 4) 1)
+        (t 0))))
+
+  (defun count-at-coordinates (row col)
+    (cond
+      ((<= row 18)
+       (cond
+         ((<= col 18)
+          (+ (count-at-position row col '(0 1))
+             (count-at-position row col '(1 0))
+             (count-at-position row col '(1 1))
+             (count-at-position row col '(1 -1))
+             (count-at-coordinates row (+ col 1))))
+         (t (count-at-coordinates (+ row 1) 0))))
+      (t 0)))
+
+  (count-at-coordinates 0 0))

@@ -106,62 +106,6 @@
 
 )
 
-
-;; /* *********************************************************************
-;; Function Name: serialize
-;; Purpose: Serializes the game state and saves it to a file.
-;; Parameters:
-;; - board (list of lists): A 2D board represented as a list of rows.
-;; - playerColor (any): The symbol representing the player's color.
-;; - playerType (any): The type of the player (e.g., human or computer).
-;; - opponentColor (any): The symbol representing the opponent's color.
-;; - opponentType (any): The type of the opponent (e.g., human or computer).
-;; - playerCaptures (integer): The number of captures made by the player.
-;; - opponentCaptures (integer): The number of captures made by the opponent.
-;; - humanTournament (integer): A number representing the human player's tournament score.
-;; - computerTournament (list): A number representing the computer player's tournament score.
-;; Return Value: None (void function), but it serializes the game state to a file and exits the game.
-;; Algorithm:
-;; 1. Prompts the user to enter a filename for saving the game state.
-;; 2. Reads the filename provided by the user.
-;; 3. Determines the color of the player ('Black' or 'White') based on the playerColor parameter.
-;; 4. Constructs a data structure containing game state information, including the board, playerCaptures, humanTournament, opponentCaptures, computerTournament, playerType, and color.
-;; 5. Opens the file with the provided filename and writes the data structure to the file.
-;; 6. Informs the user that the file was saved successfully and exits the game.
-;; Assistance Received: None
-;; ********************************************************************* */
-(defun serialize(board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures humanTournament computerTournament)
-  (format t "Enter filename: ~%")
-  (format t "~A~%" playerType)
-  (finish-output)
-
-  (let* ((filename (read-line))
-         (color-string
-          (cond
-            ((equal playerColor 'B) 'Black)
-            (t 'White)))
-         (data
-          (cond
-            ((string= playerType 'Human)
-            (format t "test~%")
-             (list board playerCaptures humanTournament opponentCaptures computerTournament playerType color-string ))
-            (t
-             (list board opponentCaptures humanTournament playerCaptures computerTournament playerType color-string ))))
-         )
-
-    (with-open-file (stream filename
-                        :direction :output
-                        :if-exists :supersede
-                        :if-does-not-exist :create)
-      (print data stream))
-    )
-
-  (format t "File saved successfully")
-  (finish-output)
-  (exit)
-)
-
-
 ;; /* *********************************************************************
 ;; Function Name: getUserMove
 ;; Purpose: Gets a user's move in the game and handles various options.
@@ -236,3 +180,32 @@
     (getUserMove board playerColor playerType opponentColor opponentType playerCaptures opponentCaptures moveCount humanTournament computerTournament)
   )))
 )
+
+;; /* *********************************************************************
+;; Function Name: is-three-points-away
+;; Purpose: Determine if the next position is at least three points away from the initial position.
+;; Parameters:
+;;     - initial-pos: A string representing the initial position (e.g., "J10").
+;;     - next-pos: A string representing the next position to be checked.
+;; Return Value:
+;;     - Returns true if the next position is at least three points away from the initial position; otherwise, returns false.
+;; Algorithm:
+;;     1. Convert the initial and next positions to row and column coordinates.
+;;     2. Calculate the absolute differences in rows and columns.
+;;     3. Check if at least one of the differences is greater than or equal to 3, indicating that the positions are three points away.
+;;     4. Return true if the condition is met, otherwise return false.
+;; Assistance Received: None
+;; ********************************************************************* */
+(defun is-three-points-away (initial-pos next-pos)
+  (let* ((next-pos-upper (string-upcase next-pos)) ; Create a new variable with uppercase next-pos
+         (initial-pos-row (parse-integer (subseq initial-pos 1)))
+         (initial-pos-col (- (char-code (char initial-pos 0)) (char-code #\A)))
+         (next-pos-row (parse-integer (subseq next-pos-upper 1))) ; Use next-pos-upper
+         (next-pos-col (- (char-code (char next-pos-upper 0)) (char-code #\A))) ; Use next-pos-upper
+         (row-difference (abs (- initial-pos-row next-pos-row)))
+         (col-difference (abs (- initial-pos-col next-pos-col)))
+         (at-least-three-points-away (or (>= row-difference 3)
+                                        (>= col-difference 3)
+                                        (and (>= row-difference 3) (>= col-difference 3)))))
+    (cond (at-least-three-points-away t)
+          (t nil))))
